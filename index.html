@@ -3,26 +3,26 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#f4ede1" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#17130f" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#fbf1f0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1e1519" media="(prefers-color-scheme: dark)">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="img/icon-192.png"><link rel="apple-touch-icon" href="img/icon-192.png">
 <meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="Petra's boekenlijst">
 <title>Petra's boekenlijst</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,400;1,9..144,600&family=Instrument+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,400;1,9..144,600&family=Instrument+Sans:wght@400;500;600;700&family=Caveat:wght@700&display=swap">
 <style>
 :root{
-  --bg:#f4ede1;--bg2:#ebe2d2;--card:#fffaf2;--line:#ddd1bd;--fg:#2a211a;--muted:#75685a;--faint:#a3968a;
-  --acc:#8c2f39;--acc2:#2f5d50;--acc-ink:#fff;--gold:#b8872f;--shadow:0 1px 2px rgba(60,40,20,.08),0 6px 18px rgba(60,40,20,.08);
+  --bg:#fbf1f0;--bg2:#f5e2e2;--card:#fffaf9;--line:#edd3d3;--fg:#3a2430;--muted:#86697a;--faint:#b49aa8;
+  --acc:#b8456f;--acc2:#5f8a74;--acc-ink:#fff;--gold:#c48a6a;--shadow:0 1px 2px rgba(120,50,80,.07),0 8px 22px rgba(120,50,80,.09);
   --f-d:"Fraunces",Georgia,serif;--f-b:"Instrument Sans",system-ui,sans-serif}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#17130f;--bg2:#211b16;--card:#262019;--line:#3a3128;--fg:#f1e8da;--muted:#b3a593;--faint:#7e7163;
-  --acc:#e0868f;--acc2:#7fbfa9;--acc-ink:#17130f;--gold:#e0b45e;--shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.3)}}
+  --bg:#1e1519;--bg2:#2a1d23;--card:#2e2027;--line:#45303a;--fg:#f7e8ee;--muted:#c4a6b4;--faint:#8c7180;
+  --acc:#f29bba;--acc2:#93c4aa;--acc-ink:#1e1519;--gold:#e9b796;--shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.3)}}
 :root[data-theme="dark"]{
-  --bg:#17130f;--bg2:#211b16;--card:#262019;--line:#3a3128;--fg:#f1e8da;--muted:#b3a593;--faint:#7e7163;
-  --acc:#e0868f;--acc2:#7fbfa9;--acc-ink:#17130f;--gold:#e0b45e;--shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.3)}
+  --bg:#1e1519;--bg2:#2a1d23;--card:#2e2027;--line:#45303a;--fg:#f7e8ee;--muted:#c4a6b4;--faint:#8c7180;
+  --acc:#f29bba;--acc2:#93c4aa;--acc-ink:#1e1519;--gold:#e9b796;--shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.3)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 html,body{margin:0;background:var(--bg);color:var(--fg);font:400 16px/1.5 var(--f-b)}
@@ -41,10 +41,14 @@ a{color:inherit}
 @media (prefers-reduced-motion:reduce){.shelf .c{animation:none}}
 .veil{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 55%,color-mix(in srgb,var(--bg) 94%,transparent) 0%,color-mix(in srgb,var(--bg) 82%,transparent) 50%,color-mix(in srgb,var(--bg) 25%,transparent) 100%);pointer-events:none}
 .hero{position:relative;z-index:2;margin:auto;padding:calc(32px + env(safe-area-inset-top)) 20px 32px;text-align:center;max-width:560px;width:100%}
-.hero .kick{font:600 12px var(--f-b);letter-spacing:.22em;text-transform:uppercase;color:var(--acc)}
-.hero h1{font:800 clamp(44px,13vw,84px)/.95 var(--f-d);letter-spacing:-.03em;margin:.18em 0 .1em;font-variation-settings:"SOFT" 100,"WONK" 1}
-.hero h1 em{font-style:italic;font-weight:400;color:var(--acc)}
-.hero p.sub{color:var(--muted);margin:0 0 22px;font-size:15px}
+.stamp{width:96px;height:96px;margin:0 auto 4px;color:var(--acc);transform:rotate(-8deg);opacity:.9}
+.stamp text{font:700 10.5px var(--f-b);letter-spacing:.32em;fill:currentColor;text-transform:uppercase}
+.hero h1{margin:0 0 .15em;line-height:1}
+.hand{display:block;font:700 clamp(40px,11vw,64px)/.8 "Caveat",cursive;color:var(--acc);transform:rotate(-4deg) translateX(-18%);margin-bottom:-.12em;position:relative;z-index:1}
+.big{display:block;font:800 clamp(46px,14vw,92px)/.92 var(--f-d);letter-spacing:-.035em;font-variation-settings:"SOFT" 100,"WONK" 1}
+.big em{font-style:italic;font-weight:400;color:var(--acc)}
+.big::after{content:"";display:block;height:.09em;width:62%;margin:.12em auto 0;border-radius:1em;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.8}
+.hero p.sub{color:var(--muted);margin:.5em 0 22px;font:italic 400 17px var(--f-d)}
 .stats{display:flex;justify-content:center;gap:22px;margin:0 0 22px}
 .stats b{display:block;font:700 26px var(--f-d);color:var(--fg)}
 .stats span{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
@@ -64,21 +68,24 @@ a{color:inherit}
 .bar .row{display:flex;align-items:center;gap:8px;height:56px}
 .bar h2{flex:1;margin:0;font:700 20px var(--f-d);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bar h2 em{font-style:italic;font-weight:400;color:var(--acc)}
+.bar h2 .h{font:700 25px/1 "Caveat",cursive;color:var(--acc);margin-right:2px}
 .ib{width:42px;height:42px;border-radius:21px;border:1px solid var(--line);background:var(--card);display:grid;place-items:center;cursor:pointer;flex:none;text-decoration:none}
 .ib svg{width:20px;height:20px}
 .ib.pri{background:var(--acc);border-color:var(--acc);color:var(--acc-ink)}
+@media (max-width:420px){.bar .row{gap:6px}.bar .ib{width:38px;height:38px}.bar h2{font-size:17px}.bar h2 .h{font-size:21px}}
 .bar .search{padding-bottom:10px}
 .bar .search input{height:46px;box-shadow:none}
 
 /* ---------- Lijst ---------- */
-.seg{display:flex;background:var(--bg2);border-radius:22px;padding:3px;margin:12px 0 0}
+.seg{display:flex;background:var(--bg2);border-radius:22px;padding:3px;margin:0}
 .seg button{flex:1;border:0;background:none;height:36px;border-radius:19px;font-weight:600;font-size:14px;color:var(--muted);cursor:pointer}
 .seg button[aria-pressed=true]{background:var(--card);color:var(--fg);box-shadow:var(--shadow)}
-.chips{display:flex;gap:6px;overflow-x:auto;padding:10px 0 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:8px 0 0;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .chips::-webkit-scrollbar{display:none}
 .chip{flex:none;border:1px solid var(--line);background:var(--card);border-radius:16px;height:32px;padding:0 12px;font-size:13px;font-weight:500;cursor:pointer;color:var(--muted)}
 .chip[aria-pressed=true]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
-.tools{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted);padding:8px 0}
+.tools{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted);padding:2px 0}
+#groups{padding-top:10px}
 .link{border:0;background:none;color:var(--acc);font-weight:600;cursor:pointer;padding:6px 0;font-size:13px}
 .au{background:var(--card);border:1px solid var(--line);border-radius:14px;margin:0 0 8px;overflow:hidden}
 .au>header{display:flex;align-items:center;gap:10px;padding:0 6px 0 14px;min-height:56px;cursor:pointer;user-select:none}
@@ -88,21 +95,24 @@ a{color:inherit}
 .au .nm b{font:600 17px var(--f-d);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .au .nm small{color:var(--muted);font-size:12.5px}
 .au .cnt{font:600 13px var(--f-b);background:var(--bg2);color:var(--muted);border-radius:12px;min-width:28px;height:24px;display:grid;place-items:center;padding:0 8px}
-.au .bio{width:40px;height:40px;border-radius:20px;border:0;background:none;display:grid;place-items:center;cursor:pointer;color:var(--acc)}
-.au .bio svg{width:20px;height:20px}
+.au .bio{width:44px;height:44px;display:grid;place-items:center;cursor:pointer;text-decoration:none;flex:none}
+.au .bio span{width:28px;height:28px;border-radius:14px;border:1.6px solid var(--acc);color:var(--acc);display:grid;place-items:center;font:italic 700 16px/1 var(--f-d)}
+.au .bio:hover span{background:var(--acc);color:var(--acc-ink)}
 .au ul{list-style:none;margin:0;padding:0 0 6px;display:none}
 .au.open ul{display:block}
 .au li a{display:flex;align-items:center;gap:12px;padding:8px 14px;text-decoration:none;border-top:1px solid color-mix(in srgb,var(--line) 60%,transparent)}
 .au li .th{width:34px;height:51px;border-radius:3px;flex:none;overflow:hidden;background:var(--bg2)}
 .au li .tt{flex:1;min-width:0}
 .au li .tt b{font-weight:600;display:block;line-height:1.3}
-.au li .tt small{color:var(--muted);font-size:12.5px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.au li .tt small,.tl .tt small{color:var(--muted);font-size:12.5px;display:block;line-height:1.35}
+.tt .en{font-style:italic;font-family:var(--f-d)}
+.tt .ser{display:inline-block;margin-top:3px;font:600 11.5px/1 var(--f-b);color:var(--acc2);background:color-mix(in srgb,var(--acc2) 12%,transparent);border-radius:8px;padding:3px 7px}
 .au li .yr{font-size:12.5px;color:var(--faint);flex:none}
 mark{background:color-mix(in srgb,var(--gold) 35%,transparent);color:inherit;border-radius:2px;padding:0 1px}
-.az{position:fixed;right:max(2px,env(safe-area-inset-right));top:50%;transform:translateY(-40%);display:flex;flex-direction:column;z-index:15;touch-action:none}
-.az button{border:0;background:none;font:600 11px var(--f-b);color:var(--acc);padding:1.5px 6px;cursor:pointer;line-height:1.15}
-@media (min-width:900px){.az{right:calc(50% - 430px)}}
-@media (max-width:899px){#groups{margin-right:14px}}
+.az{position:fixed;right:max(0px,env(safe-area-inset-right));top:var(--azTop,240px);bottom:calc(8px + env(safe-area-inset-bottom));display:flex;flex-direction:column;justify-content:center;z-index:15;touch-action:none}
+.az button{border:0;background:none;font:700 clamp(12px,2.1vh,16px)/1 var(--f-b);color:var(--acc);padding:clamp(1px,.35vh,4px) 8px;cursor:pointer;min-width:30px}
+@media (min-width:900px){.az{right:calc(50% - 440px)}}
+@media (max-width:899px){#groups{margin-right:22px}}
 .empty{text-align:center;color:var(--muted);padding:48px 16px}
 
 /* ---------- Omslagen ---------- */
@@ -151,7 +161,26 @@ mark{background:color-mix(in srgb,var(--gold) 35%,transparent);color:inherit;bor
 .tl .dot{width:10px;height:10px;border-radius:5px;background:var(--acc);flex:none;position:relative;z-index:1;box-shadow:0 0 0 3px var(--bg)}
 .tl .th{width:40px;height:60px;border-radius:4px;overflow:hidden;flex:none}
 .tl .tt b{display:block;font-weight:600;line-height:1.3}
-.tl .tt small{color:var(--muted);font-size:13px}
+.tl .tt{flex:1;min-width:0}
+.tl li a,.tl li button.nr{width:100%;border:0;background:none;text-align:left;cursor:pointer;font:inherit;color:inherit}
+.tl li button.nr{display:flex;align-items:center;gap:14px;padding:8px 0}
+.tl .ok{flex:none;font:700 11px/1 var(--f-b);color:#fff;background:var(--acc2);border-radius:10px;padding:5px 8px;display:inline-flex;align-items:center;gap:4px}
+.tl .ok.w{background:var(--gold)}
+.tl .add{flex:none;font:600 11px/1 var(--f-b);color:var(--muted);border:1px dashed var(--line);border-radius:10px;padding:5px 8px}
+.tl li.unread .tt b{font-weight:500;color:var(--muted)}
+.tl li.unread .dot{background:var(--bg);border:2px solid var(--faint);width:12px;height:12px}
+.tl li.unread .th{opacity:.45;filter:grayscale(.6)}
+.tl li.read .dot{background:var(--acc2);width:12px;height:12px}
+.tl .ph2{width:40px;height:60px;border-radius:4px;flex:none;border:1px dashed var(--line);display:grid;place-items:center;color:var(--faint);font-size:18px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--muted);margin:4px 0 6px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:5px;margin-right:5px;vertical-align:-1px}
+.src{font-size:12px;color:var(--faint);margin:10px 0 0}
+.sugg{position:relative}
+.sugg ul{position:absolute;left:0;right:0;top:100%;margin:4px 0 0;padding:4px;list-style:none;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);z-index:30;max-height:260px;overflow:auto}
+.sugg li button{display:flex;justify-content:space-between;gap:10px;width:100%;border:0;background:none;padding:10px;border-radius:8px;cursor:pointer;text-align:left;font:inherit}
+.sugg li button:hover,.sugg li button.on{background:var(--bg2)}
+.sugg li small{color:var(--muted)}
+.known{font-size:13px;color:var(--acc2);margin:-8px 0 12px;font-weight:600}
 
 /* ---------- Formulier ---------- */
 form.ed{padding:18px 0}
@@ -171,6 +200,9 @@ form.ed{padding:18px 0}
 .sheet button.it:last-child{border-bottom:0}
 .sheet .it svg{width:20px;height:20px;color:var(--acc)}
 .sheet .it small{display:block;color:var(--muted);font-weight:400;font-size:13px}
+.sheet .in{max-height:92vh;overflow:auto}
+.about{margin:14px 0 2px;padding:14px;border-radius:14px;background:var(--bg2);text-align:center;font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:3px}
+.about b{font:600 17px var(--f-d);color:var(--fg)}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(120%);background:var(--fg);color:var(--bg);padding:10px 18px;border-radius:22px;font-size:14px;font-weight:500;z-index:60;transition:transform .25s;max-width:90vw}
 .toast.on{transform:translateX(-50%) translateY(0)}
 </style>
@@ -182,19 +214,20 @@ form.ed{padding:18px 0}
   <div class="shelf" id="shelf" aria-hidden="true"></div>
   <div class="veil"></div>
   <div class="hero">
-    <div class="kick">Gelezen &amp; bewaard</div>
-    <h1>Petra's <em>Boeken</em>lijst</h1>
-    <p class="sub">Alle boeken die Petra heeft gelezen, per schrijver.</p>
+    <svg class="stamp" viewBox="0 0 100 100" aria-hidden="true">
+      <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" stroke-width="2"/>
+      <circle cx="50" cy="50" r="39" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="2 3"/>
+      <defs><path id="arc" d="M50 50 m-31 0 a31 31 0 1 1 62 0 a31 31 0 1 1 -62 0"/></defs>
+      <text><textPath href="#arc" startOffset="2%">Ex libris · Petra · Ex libris · Petra ·</textPath></text>
+      <path d="M36 62V38c5-3 10-3 14 1 4-4 9-4 14-1v24c-5-3-10-3-14 1-4-4-9-4-14-1Zm14-23v24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
+    </svg>
+    <h1><span class="hand">Petra's</span><span class="big">Boeken<em>lijst</em></span></h1>
+    <p class="sub" id="tagline">Gelezen, genoten en bewaard.</p>
     <div class="stats"><div><b id="nB">0</b><span>boeken</span></div><div><b id="nA">0</b><span>schrijvers</span></div><div><b id="nW">0</b><span>op de wensenlijst</span></div></div>
-    <form class="search" id="startSearch" role="search">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-      <input id="qStart" type="search" placeholder="Zoek op schrijver of titel" autocomplete="off" enterkeyhint="search" aria-label="Zoek op schrijver of titel">
-    </form>
-    <div class="btns">
-      <a class="btn pri" href="#/lijst"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 19.5V5a2 2 0 0 1 2-2h14v16H6a2 2 0 0 0-2 2Zm0 0A2 2 0 0 0 6 22h14"/></svg>Naar de lijst</a>
-      <a class="btn" href="#/nieuw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Boek toevoegen</a>
+    <div class="btns" style="justify-content:center">
+      <a class="btn pri" href="#/lijst" style="flex:0 1 280px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 19.5V5a2 2 0 0 1 2-2h14v16H6a2 2 0 0 0-2 2Zm0 0A2 2 0 0 0 6 22h14"/></svg>Open de boekenlijst</a>
     </div>
-    <div class="tap">Tik op de boeken om verder te gaan</div>
+    <div class="tap">of tik ergens op de boeken</div>
   </div>
 </section>
 
@@ -203,7 +236,8 @@ form.ed{padding:18px 0}
   <div class="bar"><div class="wrap">
     <div class="row">
       <a class="ib" href="#/" aria-label="Naar het startscherm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg></a>
-      <h2>Petra's <em>Boeken</em>lijst</h2>
+      <h2><span class="h">Petra's</span> Boeken<em>lijst</em></h2>
+      <button class="ib" id="themeBtn" aria-label="Licht of donker"></button>
       <button class="ib" id="menuBtn" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
       <a class="ib pri" href="#/nieuw" aria-label="Boek toevoegen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></a>
     </div>
@@ -212,11 +246,11 @@ form.ed{padding:18px 0}
       <input id="q" type="search" placeholder="Zoek op schrijver of titel" autocomplete="off" enterkeyhint="search" aria-label="Zoek op schrijver of titel">
       <button type="button" class="x hidden" id="qx" aria-label="Wis zoekopdracht">×</button>
     </form>
-  </div></div>
-  <div class="wrap">
     <div class="seg" role="group"><button id="tGel" aria-pressed="true">Gelezen</button><button id="tWens" aria-pressed="false">Wensenlijst</button></div>
     <div class="chips" id="chips"></div>
     <div class="tools"><span id="cnt"></span><button class="link" id="allBtn">Alles openklappen</button></div>
+  </div></div>
+  <div class="wrap">
     <div id="groups"></div>
   </div>
   <nav class="az" id="az" aria-label="Spring naar letter"></nav>
@@ -250,7 +284,8 @@ form.ed{padding:18px 0}
   </div></div></div>
   <div class="wrap">
     <form class="ed" id="form" autocomplete="off">
-      <div class="fld"><label for="fA">Schrijver *</label><input id="fA" list="dlA" required placeholder="Achternaam, Voornaam"></div>
+      <div class="fld sugg"><label for="fA">Schrijver *</label><input id="fA" required placeholder="Begin te typen, bijv. King" autocomplete="off" role="combobox" aria-autocomplete="list"><ul id="sgA" class="hidden" role="listbox"></ul></div>
+      <div class="known hidden" id="knownA"></div>
       <p class="hint">Bijvoorbeeld ‘King, Stephen’. Kies een bestaande naam uit de lijst, dan komt het boek bij de juiste schrijver.</p>
       <div class="fld"><label for="fT">Titel (Nederlands) *</label><input id="fT" required></div>
       <div class="fld"><label for="fO">Oorspronkelijke / Engelse titel</label><input id="fO"></div>
@@ -280,6 +315,7 @@ form.ed{padding:18px 0}
 <script src="data-boeken-4.js"></script>
 <script src="data-schrijvers.js"></script>
 <script src="data-wensen.js"></script>
+<script src="data-extra.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

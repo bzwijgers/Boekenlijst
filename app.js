@@ -36,8 +36,8 @@ function niceName(a) {               // "King, Stephen" -> "Stephen King"
   return (a.slice(i + 1).trim() + " " + a.slice(0, i).trim()).trim();
 }
 function lastName(a) { const i = a.indexOf(","); return (i < 0 ? a : a.slice(0, i)).trim(); }
-const GENRE_COL = { "Thriller": "#7a2e2e", "Medische Thriller": "#2e5b6b", "Horror": "#2b2b33", "Roman": "#8a4b6b", "Fictie": "#3f5a3a", "Detective": "#4b4060", "Non-Fictie": "#6b5a2e", "Drama": "#5e3a52", "Biografie": "#6a5a44" };
-const ALT_COL = ["#7a2e2e", "#2e5b6b", "#8a4b6b", "#3f5a3a", "#4b4060", "#6b5a2e", "#5e3a52", "#245a5a", "#80562b"];
+const GENRE_COL = { "Thriller": "#9c4a64", "Medische Thriller": "#5d7f8c", "Horror": "#5a4660", "Roman": "#c97b93", "Fictie": "#7d9a84", "Detective": "#806a9c", "Non-Fictie": "#b0876f", "Drama": "#a8628a", "Biografie": "#a88a72" };
+const ALT_COL = ["#c97b93", "#9c4a64", "#7d9a84", "#806a9c", "#b0876f", "#a8628a", "#5d7f8c", "#d39a8a", "#8c6e8f"];
 const colorFor = b => GENRE_COL[b.g] || ALT_COL[parseInt(hash(b.t), 36) % ALT_COL.length];
 function bio(a) { return store.bios[a] ?? (window.SCHRIJVERS || {})[a] ?? ""; }
 
@@ -50,6 +50,8 @@ const ckey = b => hash(norm(b.a) + "|" + norm(b.t));
 const pending = new Map(), queue = [];
 let active = 0;
 function getCover(b) {
+  const fixed = (window.COVERS || {})[b.a + "|" + b.t];       // vooraf opgezocht via Open Library
+  if (fixed) return Promise.resolve(typeof fixed === "number" ? "https://covers.openlibrary.org/b/id/" + fixed + "-M.jpg" : fixed);
   const k = ckey(b), c = covers[k];
   if (c && (c.u || Date.now() - c.d < 14 * 864e5)) return Promise.resolve(c.u || "");
   if (pending.has(k)) return pending.get(k);
@@ -140,6 +142,8 @@ function renderStart() {
   $("#nB").textContent = read.length;
   $("#nA").textContent = new Set(read.map(b => b.a)).size;
   $("#nW").textContent = BOOKS.length - read.length;
+  const lines = [read.length + " boeken verslonden, en de stapel groeit nog.", "Gelezen, genoten en bewaard.", "Thee erbij, telefoon weg, en lezen maar.", "Eén hoofdstuk nog… echt waar."];
+  $("#tagline").textContent = lines[Math.random() * lines.length | 0];
   const w = innerWidth, cols = w < 560 ? 4 : w < 1000 ? 6 : 8, rows = Math.ceil((innerHeight * 1.35) / ((w * 1.25 / cols) * 1.5)) + 1;
   const n = cols * rows, shelf = $("#shelf");
   shelf.style.setProperty("--cols", cols);
@@ -151,7 +155,6 @@ function renderStart() {
 function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0;[a[i], a[j]] = [a[j], a[i]]; } return a; }
 $("#start").addEventListener("click", e => { if (!e.target.closest(".hero")) location.hash = "#/lijst"; });
 $(".hero .tap").addEventListener("click", () => location.hash = "#/lijst");
-$("#startSearch").addEventListener("submit", e => { e.preventDefault(); setQuery($("#qStart").value); $("#qStart").blur(); location.hash = "#/lijst"; });
 
 /* ---------- Overzicht ---------- */
 let tab = "gel", genre = "", query = "", openSet = new Set(lsGet("pb-open", [])), listScrollReset = false;
@@ -185,7 +188,7 @@ function renderList() {
     return `<div class="au${open ? " open" : ""}" data-a="${esc(a)}"${anchor}>
       <header role="button" aria-expanded="${open}"><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
       <span class="nm"><b>${hl(a, query)}</b></span><span class="cnt">${bs.length < total ? bs.length + "/" + total : total}</span>
-      <a class="bio" href="#/schrijver/${encodeURIComponent(a)}" aria-label="Over ${esc(niceName(a))}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg></a></header>
+      <a class="bio" href="#/schrijver/${encodeURIComponent(a)}" aria-label="Over ${esc(niceName(a))}: bio en alle boeken" title="Bio en alle boeken"><span>i</span></a></header>
       <ul>${open ? itemsHTML(bs) : ""}</ul></div>`;
   }).join("") : `<div class="empty">Niets gevonden${query ? " voor ‘" + esc(query) + "’" : ""}.<br><br><a class="btn pri" href="#/nieuw" style="display:inline-flex;flex:none">Boek toevoegen</a></div>`;
   $("#az").innerHTML = !forceOpen && letters.length > 6 ? letters.map(L => `<button data-l="${L}">${L}</button>`).join("") : "";
@@ -194,12 +197,29 @@ function renderList() {
   $("#allBtn").textContent = allOpen ? "Alles dichtklappen" : "Alles openklappen";
   $("#allBtn").classList.toggle("hidden", forceOpen || !names.length);
   $("#allBtn").dataset.names = JSON.stringify(names);
+  setAzTop();
+}
+function setAzTop() { const bar = $("#lijst .bar"); if (bar) document.documentElement.style.setProperty("--azTop", (bar.offsetHeight + 6) + "px"); }
+/* Serie-informatie: "De Donkere Toren · deel 1 van 7" */
+const SERIES_TOTAL = {
+  "Dollanganger": 5, "De Casteel Serie": 5, "Camel Club": 5, "Will Robie": 5, "Robert Langdon": 5, "Andy Brazil": 3,
+  "Het Fluistereiland": 4, "Rizzoli & Isles": 13, "Miss": 3, "Jack Caffery": 7, "Cree Black": 2, "David Ash": 3, "De Ratten": 4,
+  "Familie Walsh": 6, "De Donkere Toren": 7, "Moonlight Bay": 2, "Millennium": 3, "Timothy Wilde": 3, "Inspector Wexford": 24,
+  "Grant County": 6, "Blue Rose": 3, "De Roth Trilogie": 3, "Martin Vail": 3, "Het Wilde Eiland": 3
+};
+const hasSeries = b => b.s && b.s !== "-";
+function seriesLabel(b) {
+  if (!hasSeries(b)) return "";
+  const tot = (store.series || {})[b.s] || SERIES_TOTAL[b.s];
+  return b.s + (b.n ? " · deel " + b.n + (tot ? " van " + tot : "") : "");
+}
+const enTitle = b => b.o && b.o !== "-" && norm(b.o) !== norm(b.t) ? b.o : "";
+function subHTML(b, q) {
+  const en = enTitle(b), s = seriesLabel(b);
+  return (en ? `<small class="en">${hl(en, q)}</small>` : "") + (s ? `<span class="ser">${hl(s, q)}</span>` : "");
 }
 function itemsHTML(bs) {
-  return bs.map(b => {
-    const sub = [b.o && b.o !== "-" && norm(b.o) !== norm(b.t) ? b.o : "", b.s && b.s !== "-" ? b.s + (b.n ? " " + b.n : "") : ""].filter(Boolean);
-    return `<li><a href="#/boek/${b.id}"><span class="th">${coverHTML(b)}</span><span class="tt"><b>${hl(b.t, query)}</b>${sub.length ? `<small>${hl(sub.join(" · "), query)}</small>` : ""}</span>${b.j ? `<span class="yr">${b.j}</span>` : ""}</a></li>`;
-  }).join("");
+  return bs.map(b => `<li><a href="#/boek/${b.id}"><span class="th">${coverHTML(b)}</span><span class="tt"><b>${hl(b.t, query)}</b>${subHTML(b, query)}</span>${b.j ? `<span class="yr">${b.j}</span>` : ""}</a></li>`).join("");
 }
 $("#groups").addEventListener("click", e => {
   if (e.target.closest("a")) return;
@@ -224,7 +244,7 @@ $("#tWens").onclick = () => { tab = "wens"; $("#tWens").setAttribute("aria-press
 let qT = 0;
 $("#q").addEventListener("input", e => { clearTimeout(qT); qT = setTimeout(() => { setQuery(e.target.value); renderList(); window.scrollTo(0, 0); }, 120); });
 $("#q").addEventListener("keydown", e => { if (e.key === "Enter") e.target.blur(); });
-$("#qx").onclick = () => { setQuery(""); $("#qStart").value = ""; renderList(); $("#q").focus(); };
+$("#qx").onclick = () => { setQuery(""); renderList(); $("#q").focus(); };
 function azJump(y) {
   const el = document.elementFromPoint(innerWidth - 12, y), L = el && el.dataset && el.dataset.l;
   const t = L && document.getElementById("L-" + L);
@@ -240,13 +260,12 @@ function renderBook(b) {
   const facts = [];
   if (b.g) facts.push(["Soort boek", b.g]);
   facts.push(["Verschenen", b.j || "onbekend"]);
-  if (b.s && b.s !== "-") facts.push(["Serie", b.s + (b.n ? " · deel " + b.n : "")]);
-  else facts.push(["Serie", "Geen serie"]);
+  facts.push(["Serie", hasSeries(b) ? seriesLabel(b) : "Geen serie"]);
   if (b.w) facts.push(["Status", "Op de wensenlijst"]);
   const others = BOOKS.filter(x => x.a === b.a && x.id !== b.id && x.s && x.s === b.s && b.s !== "-").sort((x, y) => (x.n || 99) - (y.n || 99) || sortKey(x.t).localeCompare(sortKey(y.t)));
   $("#bBody").innerHTML = `
     <div class="top"><div class="big">${coverHTML(b)}</div>
-      <div><h1>${esc(b.t)}</h1>${b.o && b.o !== "-" && norm(b.o) !== norm(b.t) ? `<p class="orig">${esc(b.o)}</p>` : ""}
+      <div><h1>${esc(b.t)}</h1>${enTitle(b) ? `<p class="orig">${esc(enTitle(b))}</p>` : ""}${hasSeries(b) ? `<div class="tt" style="margin:-4px 0 8px"><span class="ser">${esc(seriesLabel(b))}</span></div>` : ""}
       <a class="by" href="#/schrijver/${encodeURIComponent(b.a)}">${esc(niceName(b.a))}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></a></div></div>
     <div class="facts">${facts.map(f => `<div class="fact"><small>${f[0]}</small><span>${esc(f[1])}</span></div>`).join("")}</div>
     <div class="sec"><h3>Samenvatting</h3>${b.z ? `<p>${esc(b.z)}</p>` : `<p class="none">Nog geen samenvatting. Tik op het potlood om er een toe te voegen.</p>`}</div>
@@ -269,9 +288,25 @@ function setField(id, obj) {
 }
 
 /* ---------- Schrijver ---------- */
+const tkey = s => norm(s).replace(/^(the|a|de|het|een)\s+/, "").replace(/[^a-z0-9]/g, "");
+let authorFilter = "alle";
+/* Alle boeken van een schrijver: Petra's boeken + de bibliografie (Open Library), op jaar */
+function authorTimeline(a) {
+  const mine = BOOKS.filter(b => b.a === a), used = new Set(), rows = [];
+  ((window.BIBLIO || {})[a] || []).forEach(([title, year]) => {
+    const k = tkey(title);
+    const m = mine.find(b => !used.has(b.id) && (tkey(b.o) === k || tkey(b.t) === k));
+    if (m) { used.add(m.id); rows.push({ b: m, y: m.j || year }); }
+    else if (!rows.some(r => !r.b && tkey(r.title) === k)) rows.push({ title, y: year });
+  });
+  mine.filter(b => !used.has(b.id)).forEach(b => rows.push({ b, y: b.j || 0 }));
+  return rows.sort((x, y) => (x.y || 9999) - (y.y || 9999) || ((x.b && x.b.n) || 0) - ((y.b && y.b.n) || 0));
+}
 function renderAuthor(a) {
-  const bs = BOOKS.filter(b => b.a === a).sort((x, y) => (x.j || 9999) - (y.j || 9999) || (x.n || 0) - (y.n || 0) || sortKey(x.t).localeCompare(sortKey(y.t), "nl"));
+  const bs = BOOKS.filter(b => b.a === a);
   const nm = niceName(a), read = bs.filter(b => !b.w).length;
+  const rows = authorTimeline(a), nOther = rows.filter(r => !r.b).length, hasBib = !!(window.BIBLIO || {})[a];
+  const shown = rows.filter(r => authorFilter === "alle" || (r.b && !r.b.w));
   const ini = nm.split(/\s+/).filter(w => /^[A-ZÀ-Ý]/.test(w)).map(w => w[0]).slice(0, 1).concat(lastName(a)[0] || "").join("").slice(0, 2).toUpperCase();
   const gs = [...new Set(bs.map(b => b.g).filter(Boolean))];
   $("#sBar").textContent = nm;
@@ -280,9 +315,15 @@ function renderAuthor(a) {
     <div class="ahead"><div class="ini">${esc(ini)}</div><h1>${esc(nm)}</h1>
       <div class="meta">${read} gelezen${bs.length > read ? " · " + (bs.length - read) + " op de wensenlijst" : ""}${gs.length ? " · " + esc(gs.join(", ")) : ""}</div></div>
     <div class="sec"><h3>Over de schrijver</h3><div id="bioBox">${bt ? `<p>${esc(bt)}</p>` : `<p class="none">Nog geen bio. Tik op het potlood om er een te schrijven.</p>`}</div></div>
-    <div class="sec"><h3>Boeken op jaar van verschijnen</h3>
-      <ul class="tl">${bs.map(b => `<li><a href="#/boek/${b.id}"><span class="y">${b.j || "?"}</span><span class="dot"></span><span class="th">${coverHTML(b)}</span><span class="tt"><b>${esc(b.t)}</b><small>${[b.o && b.o !== "-" && norm(b.o) !== norm(b.t) ? b.o : "", b.s && b.s !== "-" ? b.s + (b.n ? " " + b.n : "") : "", b.w ? "wensenlijst" : ""].filter(Boolean).map(esc).join(" · ")}</small></span></a></li>`).join("")}</ul></div>`;
+    <div class="sec"><h3>${hasBib ? "Alle boeken op jaar van verschijnen" : "Boeken op jaar van verschijnen"}</h3>
+      ${nOther ? `<div class="legend"><span><i style="background:var(--acc2)"></i>Gelezen (${read})</span><span><i style="border:2px solid var(--faint)"></i>Nog niet gelezen (${nOther})</span>${bs.length > read ? `<span><i style="background:var(--gold)"></i>Wensenlijst</span>` : ""}</div>
+      <div class="chips" style="padding-top:2px"><button class="chip" data-f="alle" aria-pressed="${authorFilter === "alle"}">Alle boeken</button><button class="chip" data-f="gel" aria-pressed="${authorFilter === "gel"}">Alleen gelezen</button></div>` : ""}
+      <ul class="tl">${shown.map((r, i) => r.b ? `<li class="read"><a href="#/boek/${r.b.id}"><span class="y">${r.y || "?"}</span><span class="dot"></span><span class="th">${coverHTML(r.b)}</span><span class="tt"><b>${esc(r.b.t)}</b>${subHTML(r.b, "")}</span>${r.b.w ? `<span class="ok w">Wens</span>` : `<span class="ok">✓ Gelezen</span>`}</a></li>`
+        : `<li class="unread"><button class="nr" data-i="${rows.indexOf(r)}"><span class="y">${r.y || "?"}</span><span class="dot"></span><span class="ph2">+</span><span class="tt"><b>${esc(r.title)}</b></span><span class="add">Gelezen?</span></button></li>`).join("")}</ul>
+      ${hasBib ? `<p class="src">De lijst met niet-gelezen boeken komt van Open Library en kan onvolledig zijn of ook verzamelbundels bevatten. Tik op een titel om hem als gelezen of als wens toe te voegen.</p>` : ""}</div>`;
   hydrate($("#sBody"));
+  $("#sBody").querySelectorAll(".chip[data-f]").forEach(c => c.onclick = () => { authorFilter = c.dataset.f; renderAuthor(a); });
+  $("#sBody").querySelectorAll("button.nr").forEach(btn => btn.onclick = () => askAdd(a, rows[+btn.dataset.i]));
   $("#sEdit").onclick = () => {
     $("#bioBox").innerHTML = `<textarea class="memo" id="bioTa" style="min-height:160px">${esc(bio(a))}</textarea><div class="acts"><button class="btn pri" id="bioOk">Bio opslaan</button></div>`;
     $("#bioTa").focus();
@@ -290,20 +331,72 @@ function renderAuthor(a) {
   };
 }
 
+/* Een titel uit de bibliografie toevoegen als gelezen of als wens */
+function askAdd(a, r) {
+  const s = document.createElement("div"); s.className = "sheet";
+  s.innerHTML = `<div class="in"><div class="grab"></div>
+    <p style="margin:4px 6px 2px;font:600 19px var(--f-d)">${esc(r.title)}</p>
+    <p style="margin:0 6px 10px;color:var(--muted)">${esc(niceName(a))}${r.y ? " · " + r.y : ""}</p>
+    <button class="it" data-k="gel"><span style="font-size:20px">✓</span><span>Gelezen<small>Toevoegen aan Petra's lijst en meteen aanvullen</small></span></button>
+    <button class="it" data-k="wens"><span style="font-size:20px">♡</span><span>Op de wensenlijst<small>Wil ik nog lezen</small></span></button>
+    <button class="it" data-k="x"><span style="font-size:20px">×</span><span>Annuleren</span></button></div>`;
+  s.addEventListener("click", e => {
+    const it = e.target.closest(".it");
+    if (e.target === s || it) s.remove();
+    if (!it || it.dataset.k === "x") return;
+    const w = it.dataset.k === "wens", id = "u" + Date.now().toString(36);
+    store.added.push({ id, a, t: r.title, o: r.title, s: "", n: 0, g: "", j: r.y || 0, z: "", memo: "", w });
+    saveStore(); rebuild(); openSet.add(a); lsSet("pb-open", [...openSet]);
+    if (w) { toast("Op de wensenlijst gezet"); renderAuthor(a); }
+    else { fillHint = true; location.hash = "#/bewerk/" + id; }
+  });
+  document.body.appendChild(s);
+}
+
 /* ---------- Toevoegen / bewerken ---------- */
-let editing = null;
+let editing = null, fillHint = false;
+const allAuthors = () => [...new Set(BOOKS.map(x => x.a))].sort((x, y) => sortKey(x).localeCompare(sortKey(y), "nl"));
+function knownNote() {
+  const v = norm($("#fA").value), a = allAuthors().find(x => norm(x) === v || norm(niceName(x)) === v);
+  const n = a ? BOOKS.filter(b => b.a === a && !b.w).length : 0;
+  $("#knownA").classList.toggle("hidden", !a);
+  if (a) $("#knownA").textContent = "✓ " + niceName(a) + " staat al in de lijst (" + n + " gelezen)";
+}
+function suggest() {
+  const v = norm($("#fA").value), ul = $("#sgA");
+  if (!v) { ul.classList.add("hidden"); knownNote(); return; }
+  const hits = allAuthors().filter(a => norm(a).includes(v) || norm(niceName(a)).includes(v)).slice(0, 8);
+  const exact = hits.length === 1 && (norm(hits[0]) === v || norm(niceName(hits[0])) === v);
+  ul.innerHTML = hits.map((a, i) => `<li><button type="button" data-a="${esc(a)}" class="${i ? "" : "on"}"><span>${esc(niceName(a))}</span><small>${BOOKS.filter(b => b.a === a && !b.w).length} gelezen</small></button></li>`).join("");
+  ul.classList.toggle("hidden", !hits.length || exact);
+  knownNote();
+}
+$("#fA").addEventListener("input", suggest);
+$("#fA").addEventListener("focus", suggest);
+$("#fA").addEventListener("blur", () => setTimeout(() => $("#sgA").classList.add("hidden"), 200));
+$("#fA").addEventListener("keydown", e => {
+  const ul = $("#sgA"); if (ul.classList.contains("hidden")) return;
+  const bs = [...ul.querySelectorAll("button")], i = bs.findIndex(b => b.classList.contains("on"));
+  if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); bs.forEach(b => b.classList.remove("on")); bs[(i + (e.key === "ArrowDown" ? 1 : bs.length - 1)) % bs.length].classList.add("on"); }
+  if (e.key === "Enter" && i >= 0) { e.preventDefault(); bs[i].click(); }
+});
+$("#sgA").addEventListener("mousedown", e => e.preventDefault());
+$("#sgA").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  $("#fA").value = b.dataset.a; $("#sgA").classList.add("hidden"); knownNote(); $("#fT").focus();
+});
 function renderForm(b) {
   editing = b;
-  $("#fTitle").textContent = b ? "Boek bewerken" : "Boek toevoegen";
-  const authors = [...new Set(BOOKS.map(x => x.a))].sort((x, y) => sortKey(x).localeCompare(sortKey(y), "nl"));
-  $("#dlA").innerHTML = authors.map(a => `<option value="${esc(a)}">`).join("");
+  $("#fTitle").textContent = b ? (fillHint ? "Boek aanvullen" : "Boek bewerken") : "Boek toevoegen";
   $("#dlS").innerHTML = [...new Set(BOOKS.map(x => x.s).filter(s => s && s !== "-"))].sort().map(s => `<option value="${esc(s)}">`).join("");
   $("#dlG").innerHTML = [...new Set(BOOKS.map(x => x.g).filter(Boolean))].sort().map(s => `<option value="${esc(s)}">`).join("");
   const v = b || { a: "", t: "", o: "", s: "", n: "", g: "", j: "", z: "", memo: "", w: tab === "wens" };
   $("#fA").value = v.a; $("#fT").value = v.t; $("#fO").value = v.o && v.o !== "-" ? v.o : ""; $("#fS").value = v.s && v.s !== "-" ? v.s : "";
   $("#fN").value = v.n || ""; $("#fG").value = v.g || ""; $("#fJ").value = v.j || ""; $("#fZ").value = v.z || ""; $("#fM").value = v.memo || ""; $("#fW").checked = !!v.w;
   $("#fDel").classList.toggle("hidden", !b);
+  $("#sgA").classList.add("hidden"); knownNote();
   if (!b) setTimeout(() => $("#fA").focus(), 50);
+  if (fillHint) { fillHint = false; toast("Toegevoegd! Vul nu de Nederlandse titel en de rest aan"); setTimeout(() => { $("#fT").focus(); $("#fT").select(); }, 80); }
 }
 $("#form").addEventListener("submit", e => {
   e.preventDefault();
@@ -332,25 +425,59 @@ $("#fDel").onclick = () => {
 
 /* ---------- Menu: backup, thema, omslagen ---------- */
 function toast(m) { const t = $("#toast"); t.textContent = m; t.classList.add("on"); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove("on"), 2200); }
-const THEMES = { auto: "Automatisch", light: "Licht", dark: "Donker" };
-function applyTheme() { const t = lsGet("pb-theme", "auto"); if (t === "auto") document.documentElement.removeAttribute("data-theme"); else document.documentElement.dataset.theme = t; }
+const APP = { versie: "1.1", datum: "7 november 2026" };   // bij elke update aanpassen
+const SUN = '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  MOON = '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>';
+const isDark = () => { const t = lsGet("pb-theme", "auto"); return t === "dark" || (t === "auto" && matchMedia("(prefers-color-scheme: dark)").matches); };
+function applyTheme() {
+  const t = lsGet("pb-theme", "auto"); if (t === "auto") document.documentElement.removeAttribute("data-theme"); else document.documentElement.dataset.theme = t;
+  const b = $("#themeBtn"); if (b) { b.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${isDark() ? SUN : MOON}</svg>`; b.setAttribute("aria-label", isDark() ? "Lichte weergave" : "Donkere weergave"); }
+}
 applyTheme();
+$("#themeBtn").onclick = () => { lsSet("pb-theme", isDark() ? "light" : "dark"); applyTheme(); };
+/* Gelezen boeken naar Excel (.xlsx via SheetJS; zonder internet: .csv die Excel ook opent) */
+async function exportExcel(withWishes) {
+  const rows = BOOKS.filter(b => withWishes || !b.w).sort((x, y) => sortKey(x.a).localeCompare(sortKey(y.a), "nl") || sortKey(x.t).localeCompare(sortKey(y.t), "nl", { numeric: true }))
+    .map(b => ({ "Auteur": b.a, "Nederlandse titel": b.t, "Oorspronkelijke titel": enTitle(b), "Serie": hasSeries(b) ? b.s : "", "Deel": b.n || "", "Genre": b.g || "", "Jaar": b.j || "", "Samenvatting": b.z || "", "Memo": b.memo || "", "Status": b.w ? "Wensenlijst" : "Gelezen" }));
+  const name = "Petra's boekenlijst " + new Date().toISOString().slice(0, 10);
+  try {
+    if (!window.XLSX) await new Promise((ok, fail) => { const s = document.createElement("script"); s.src = "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"; s.onload = ok; s.onerror = fail; document.head.appendChild(s); });
+    const ws = XLSX.utils.json_to_sheet(rows);
+    ws["!cols"] = [28, 40, 40, 26, 6, 18, 6, 60, 40, 12].map(w => ({ wch: w }));
+    ws["!autofilter"] = { ref: ws["!ref"] };
+    const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Gelezen boeken");
+    XLSX.writeFile(wb, name + ".xlsx");
+  } catch (e) {
+    const cols = Object.keys(rows[0] || {}), q = v => '"' + String(v).replace(/"/g, '""') + '"';
+    const csv = "﻿" + [cols.join(";")].concat(rows.map(r => cols.map(c => q(r[c])).join(";"))).join("\r\n");
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = name + ".csv";
+    document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  }
+  toast(rows.length + " boeken geëxporteerd");
+}
 $("#menuBtn").onclick = () => {
   const th = lsGet("pb-theme", "auto"), ic = p => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
   const s = document.createElement("div"); s.className = "sheet";
   s.innerHTML = `<div class="in"><div class="grab"></div>
+    <button class="it" data-k="xls">${ic('<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Z"/><path d="M14 3v6h6M9 13l4 5M13 13l-4 5"/>')}<span>Exporteren naar Excel<small>Alle gelezen boeken met schrijver, titels, serie, jaar en memo</small></span></button>
+    <button class="it" data-k="xlsw">${ic('<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Z"/><path d="M14 3v6h6"/>')}<span>Exporteren naar Excel, met wensenlijst<small>Gelezen boeken én de wensenlijst in één bestand</small></span></button>
     <button class="it" data-k="exp">${ic('<path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v3h16v-3"/>')}<span>Backup opslaan<small>Bewaar memo's, nieuwe boeken en wijzigingen als bestand</small></span></button>
     <button class="it" data-k="imp">${ic('<path d="M12 15V3m0 0L8 7m4-4 4 4M4 17v3h16v-3"/>')}<span>Backup terugzetten<small>Bijvoorbeeld van de telefoon naar de iPad</small></span></button>
-    <button class="it" data-k="theme">${ic('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>')}<span>Weergave: ${THEMES[th]}<small>Tik om te wisselen tussen automatisch, licht en donker</small></span></button>
-    <button class="it" data-k="cov">${ic('<path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/>')}<span>Omslagen opnieuw zoeken<small>Als er een verkeerde of geen voorkant wordt getoond</small></span></button></div>`;
+    <button class="it" data-k="theme">${ic('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>')}<span>Weergave automatisch${th === "auto" ? " (nu aan)" : ""}<small>Licht of donker volgens de instelling van het apparaat. Met de zon/maan-knop kies je het zelf.</small></span></button>
+    <button class="it" data-k="cov">${ic('<path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/>')}<span>Omslagen opnieuw zoeken<small>Als er een verkeerde of geen voorkant wordt getoond</small></span></button>
+    <div class="about"><b>Boekenlijst Petra Zwijgers</b>
+      <span>Versie ${APP.versie} · laatst bijgewerkt ${APP.datum}</span>
+      <span>${BOOKS.filter(b => !b.w).length} gelezen boeken · ${new Set(BOOKS.filter(b => !b.w).map(b => b.a)).size} schrijvers · ${BOOKS.filter(b => b.w).length} op de wensenlijst</span>
+      <span>Gemaakt met liefde door Barry Zwijgers ♥</span></div></div>`;
   s.addEventListener("click", e => {
     const it = e.target.closest(".it");
     if (e.target === s || it) s.remove();
     if (!it) return;
     const k = it.dataset.k;
+    if (k === "xls" || k === "xlsw") exportExcel(k === "xlsw");
     if (k === "exp") exportData();
     if (k === "imp") $("#impFile").click();
-    if (k === "theme") { const order = ["auto", "light", "dark"], n = order[(order.indexOf(th) + 1) % 3]; lsSet("pb-theme", n); applyTheme(); toast("Weergave: " + THEMES[n]); }
+    if (k === "theme") { lsSet("pb-theme", "auto"); applyTheme(); toast("Weergave volgt nu de instelling van het apparaat"); }
     if (k === "cov") { covers = {}; lsSet(COV_KEY, {}); document.querySelectorAll(".cov").forEach(el => { el.classList.remove("has"); el.querySelectorAll("img").forEach(i => i.remove()); delete el.dataset.h; }); hydrate(document); toast("Omslagen worden opnieuw gezocht"); }
   });
   document.body.appendChild(s);
