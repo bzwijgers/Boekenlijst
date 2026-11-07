@@ -1,0 +1,94 @@
+/* Petra's boekenlijst — deel 2 (H t/m L) */
+window.BOEKEN = window.BOEKEN || [];
+(function (B) {
+B("Harrewijn, Astrid","Drie vrienden, een huis","","",0,"Roman",0,"");
+B("Harrewijn, Astrid","In zeven sloten","","",0,"Roman",0,"");
+B("Harrewijn, Astrid","Je kunt je krijgen","","",0,"Roman",0,"");
+B("Harrewijn, Astrid","Luchtkussen","","",0,"Roman",0,"");
+B("Harrewijn, Astrid","Miss Communicatie","","Miss",1,"Roman",0,"");
+B("Harrewijn, Astrid","Miss Match","","Miss",2,"Roman",0,"");
+B("Harrewijn, Astrid","Miss Verstand","","Miss",3,"Roman",0,"");
+B("Harrewijn, Astrid","Prinses in de polder","","",0,"Roman",0,"");
+B("Harrewijn, Astrid","Vrienden voor het leven","","",0,"Roman",0,"");
+
+B("Hayder, Mo","Ritueel","Ritual","Jack Caffery",3,"Thriller",2008,"Een duiker vindt in de haven van Bristol een afgehakte hand. Inspecteur Jack Caffery en duikster Flea Marley stuiten op een wereld van drugs en Afrikaanse rituelen.");
+B("Hayder, Mo","Rot","Hanging Hill","",0,"Thriller",2011,"Twee vervreemde zussen – de een rechercheur, de ander een moeder in geldnood – raken verwikkeld in de moord op een tienermeisje in Bath.");
+B("Hayder, Mo","Vogelman","Birdman","Jack Caffery",1,"Thriller",1999,"Op een bouwterrein in Londen worden vijf vrouwenlichamen gevonden, elk met een levende vogel in de borstkas genaaid. Het debuut van Mo Hayder en het eerste boek met Jack Caffery.");
+B("Hecht, Daniel","Het huis van de maskers","City of Masks","Cree Black",1,"Thriller",2003,"Paranormaal onderzoekster Cree Black wordt naar New Orleans gehaald om een spookhuis te onderzoeken. Ze ontdekt dat de geesten verbonden zijn met een duister familiegeheim.");
+
+B("Herbert, James","Altaar van het kwaad","Shrine","",0,"Horror",1983,"Een doofstom meisje begint na een ‘verschijning’ bij een kerkje wonderen te verrichten. Het dorp wordt een bedevaartsoord, maar de kracht achter de wonderen is niet heilig.");
+B("Herbert, James","Duivelsgraf","Creed","",0,"Horror",1990,"Een roddelfotograaf maakt een foto van een vreemde figuur op een begrafenis en wordt daarna achtervolgd door bovennatuurlijke wezens.");
+B("Herbert, James","Duivelswerk","Haunted","David Ash",1,"Horror",1988,"Paranormaal onderzoeker David Ash, die niet in spoken gelooft, onderzoekt een spookhuis bij een familie op het platteland – en wordt geconfronteerd met zijn eigen verleden.");
+B("Herbert, James","Het rattenleger","Lair","De Ratten",2,"Horror",1979,"De gemuteerde ratten zijn terug, nu in Epping Forest buiten Londen. Een rattenbestrijder moet ze vinden voordat ze opnieuw toeslaan.");
+B("Herbert, James","Spook","","",0,"Horror",0,"","Oorspronkelijke titel in de Excel: Spook");
+B("Herbert, James","Wraak van de overlevende","The Survivor","",0,"Horror",1976,"Een piloot overleeft als enige een vliegtuigramp bij Windsor. Daarna sterven mensen in de omgeving op mysterieuze wijze, en hij moet uitzoeken wat de doden van hem willen.");
+
+B("Hewson, David","De Vaticaanse moorden","A Season for the Dead","Nic Costa",1,"Thriller",2003,"In Rome worden mensen vermoord op een manier die verwijst naar martelaren uit de kunst. De jonge agent Nic Costa komt terecht in de machtsspelletjes van het Vaticaan.");
+B("Higgins Clark, Mary","De herrezen moordenaar","On the Street Where You Live","",0,"Thriller",2001,"Een advocate verhuist naar een badplaats in New Jersey en ontdekt dat er in haar huis een skelet uit de negentiende eeuw lag – en dat de geschiedenis zich lijkt te herhalen.");
+B("Higgins Clark, Mary","De stiefvader","No Place Like Home","",0,"Thriller",2005,"Als kind schoot Liza per ongeluk haar moeder dood. Jaren later koopt haar man zonder het te weten precies dat huis, en dan valt er opnieuw een dode.");
+B("Higgins Clark, Mary","Jou krijg ik nog wel","I'll Be Seeing You","",0,"Thriller",1993,"Een tv-journaliste ziet in het mortuarium een vermoorde vrouw die als twee druppels water op haar lijkt. Het spoor leidt naar een vruchtbaarheidskliniek.");
+B("Higson, Charles","De indringer","Happy Now","",0,"Horror",1993,"");
+B("Hollander, Loes den","Vrijdag","","",0,"Thriller",0,"");
+B("Hoffman, Jilliane","De snijkamer","The Cutting Room","",0,"Thriller",0,"");
+B("Jansma, Linda","Judaskus","","",0,"Thriller",0,"");
+B("Jolowicz, Philip","Torens van stilte","Walls of Silence","",0,"Thriller",0,"");
+B("Kava, Alex","Duister kwaad","A Perfect Evil","Maggie O'Dell",1,"Thriller",2000,"In een klein stadje in Nebraska worden jongens vermoord, net als jaren eerder. FBI-profiler Maggie O'Dell en sheriff Nick Morrelli moeten de echte dader vinden.");
+B("Kennedy, Douglas","Het oog van de lens","The Big Picture","",0,"Thriller",1997,"Een advocaat in New York met een gefrustreerde fotografenambitie doodt in een opwelling de minnaar van zijn vrouw en neemt diens identiteit aan.");
+B("Kepler, Lars","Hypnose","Hypnotisören","Joona Linna",1,"Thriller",2009,"Een gezin in Stockholm wordt afgeslacht, alleen de zoon overleeft. Inspecteur Joona Linna vraagt een hypnotiseur om de jongen te ondervragen – met gevolgen voor de hypnotiseur zelf.");
+B("Keyes, Marian","De vakantie van Rachel","Rachel's Holiday","Familie Walsh",2,"Fictie",1998,"Rachel Walsh denkt dat ze voor een soort luxe kuuroord naar een afkickkliniek in Ierland gaat. Gaandeweg moet ze toegeven dat haar drugsgebruik een probleem is. Grappig en ontroerend.");
+
+B("King, Stephen","Vier seizoenen","Different Seasons","",0,"Horror",1982,"Vier novellen, waaronder ‘Rita Hayworth and Shawshank Redemption’ (The Shawshank Redemption) en ‘The Body’ (Stand by Me).","Verhalenbundel");
+B("King, Stephen","Bezeten stad","'Salem's Lot","",0,"Horror",1975,"Een schrijver keert terug naar zijn geboortedorp Jerusalem's Lot, waar langzaam alle inwoners in vampiers veranderen.");
+B("King, Stephen","De Donkere Toren 1 - De scherpschutter","The Gunslinger","De Donkere Toren",1,"Fictie",1982,"De scherpschutter Roland volgt de man in het zwart door een woestijn in een wereld die is ‘verschoven’, op weg naar de mysterieuze Donkere Toren.");
+B("King, Stephen","De Donkere Toren 2 - Het teken van drie","The Drawing of the Three","De Donkere Toren",2,"Fictie",1987,"Roland trekt via deuren op het strand drie mensen uit ons New York naar zijn wereld om hem te helpen op zijn tocht.");
+B("King, Stephen","De Donkere Toren 3 - Het verloren rijk","The Waste Lands","De Donkere Toren",3,"Fictie",1991,"Roland, Eddie, Susannah en de jongen Jake trekken door een verwoest land naar de stad Lud en stappen in een krankzinnige, pratende trein.");
+B("King, Stephen","De Donkere Toren 4 - Tovenaarsglas","Wizard and Glass","De Donkere Toren",4,"Fictie",1997,"Roland vertelt zijn reisgenoten over zijn jeugd: zijn eerste liefde Susan en de gebeurtenissen in het stadje Hambry.");
+B("King, Stephen","De marathon","The Long Walk","",0,"Fictie",1979,"Honderd jongens doen mee aan een jaarlijkse wandelwedstrijd waarbij wie te langzaam loopt, wordt doodgeschoten. Alleen de laatste overblijver wint.","Als Richard Bachman");
+B("King, Stephen","De noodzaak","Needful Things","",0,"Horror",1991,"In Castle Rock opent een winkel waar iedereen precies vindt wat hij altijd wilde. De prijs: een kleine ‘grap’ met een buurman, die het stadje in chaos stort.");
+B("King, Stephen","De spelbreker","Gerald's Game","",0,"Horror",1992,"Jessie ligt geboeid aan het bed in een afgelegen huisje als haar man plotseling sterft. Alleen, zonder hulp, moet ze zien te ontsnappen – en haar verleden onder ogen zien.");
+B("King, Stephen","Desperation","Desperation","",0,"Horror",1996,"Reizigers op een verlaten weg in Nevada worden gearresteerd door een waanzinnige agent en opgesloten in het mijnstadje Desperation, waar een oude kwade macht huist.");
+B("King, Stephen","Dodelijk dilemma","The Dead Zone","",0,"Horror",1979,"Na jaren in coma blijkt Johnny Smith de toekomst te kunnen zien door mensen aan te raken. Als hij een politicus de hand schudt, ziet hij een ramp.");
+B("King, Stephen","Dodenwake","Pet Sematary","",0,"Horror",1983,"Achter het nieuwe huis van de familie Creed ligt een dierenbegraafplaats, en daarachter een oude begraafplaats waar de doden terugkeren – maar anders dan ze waren.");
+B("King, Stephen","Engelieren (Tweeduister)","The Langoliers","Tweeduister",0,"Horror",1990,"Een vliegtuig vliegt door een tijdsscheur. De passagiers die wakker blijven, landen in een lege, dode wereld, waar iets hongerigs op hen afkomt.","Uit de bundel Four Past Midnight");
+B("King, Stephen","Harten in Atlantis","Hearts in Atlantis","",0,"Fictie",1999,"Vijf met elkaar verbonden verhalen over een generatie Amerikanen die opgroeide in de jaren zestig, van een jongen en zijn mysterieuze oude buurman tot studenten die verslaafd raken aan kaarten en de Vietnamoorlog.");
+B("King, Stephen","Het","It","",0,"Horror",1986,"Zeven vrienden in Derry verslaan als kinderen een wezen dat zich als clown Pennywise vertoont. Zevenentwintig jaar later keert Het terug, en zij ook.");
+B("King, Stephen","Het geheime raam (Tweeduister)","Secret Window, Secret Garden","Tweeduister",0,"Horror",1990,"Schrijver Mort Rainey wordt door een vreemde beschuldigd van plagiaat. De man laat hem niet meer met rust.","Uit de bundel Four Past Midnight");
+B("King, Stephen","Het instituut","The Institute","",0,"Horror",2019,"De hoogbegaafde Luke wordt ontvoerd en wakker in een geheim instituut, waar kinderen met paranormale gaven worden misbruikt.");
+B("King, Stephen","Mobiel","Cell","",0,"Fictie",2006,"Een mysterieus signaal via mobiele telefoons verandert iedereen die belt in een moordzuchtige zombie. Een kleine groep overlevenden trekt door New England.");
+B("King, Stephen","Razernij","Rage","",0,"Fictie",1977,"Een scholier doodt een docent en neemt zijn klas in gijzeling.","Als Richard Bachman");
+B("King, Stephen","Rosie","Rose Madder","",0,"Horror",1995,"Rosie ontvlucht na jaren mishandeling haar gewelddadige man, een politieagent. Een mysterieus schilderij biedt haar een uitweg, terwijl haar man haar opjaagt.");
+B("King, Stephen","Vlucht naar de top","The Running Man","",0,"Fictie",1982,"In een dystopisch Amerika doet een arme man mee aan een tv-show waarin hij dertig dagen moet overleven terwijl huurmoordenaars op hem jagen.","Als Richard Bachman");
+B("King, Stephen","Werk in uitvoering","Roadwork","",0,"Fictie",1981,"Een man weigert zijn huis te verlaten voor de aanleg van een snelweg en raakt na de dood van zijn zoon steeds verder in de war.","Als Richard Bachman");
+
+B("Koontz, Dean R.","Ademloos","Breathless","",0,"Horror",2009,"Een man en zijn hond ontdekken in de bossen van Colorado twee onbekende, speelse wezens. Hun bestaan zet wetenschap en overheid op scherp.");
+B("Koontz, Dean R.","Bij het licht van de maan","By the Light of the Moon","",0,"Horror",2002,"Een kunstenaar en een cabaretière worden in een motel door een gestoorde wetenschapper geïnjecteerd met een onbekend middel, en ontwikkelen vreemde gaven.");
+B("Koontz, Dean R.","Duistere stromen","Dark Rivers of the Heart","",0,"Horror",1994,"Een man en een vrouw op de vlucht voor een geheime overheidsdienst die burgers met moderne technologie bespioneert.");
+B("Koontz, Dean R.","Fantomen","Phantoms","",0,"Horror",1983,"Twee zussen vinden het bergstadje Snowfield in Californië verlaten aan: alle inwoners zijn dood of verdwenen. Iets heel ouds is uit de diepte naar boven gekomen.");
+B("Koontz, Dean R.","Gefluister","Whispers","",0,"Horror",1980,"Een schrijfster wordt aangevallen door een man die ze kent. Ze doodt hem uit zelfverdediging, maar daarna komt hij terug.");
+B("Koontz, Dean R.","Gegrepen","The Taking","",0,"Horror",2004,"Na een vreemde regenbui verandert een stadje in de bergen in een nachtmerrie. Wordt de aarde overgenomen, en door wie?");
+B("Koontz, Dean R.","Grijp de nacht","Seize the Night","Moonlight Bay",2,"Horror",1998,"Christopher Snow, die door een zeldzame ziekte geen licht verdraagt, zoekt 's nachts naar verdwenen kinderen in Moonlight Bay.");
+B("Koontz, Dean R.","Het Franciscuscomplot","Watchers","",0,"Horror",1987,"Een ex-soldaat vindt een uitzonderlijk slimme hond die uit een geheim lab is ontsnapt. Een ander, moordzuchtig wezen uit hetzelfde lab zit hen op de hielen.");
+B("Koontz, Dean R.","Het kwade licht","The Bad Place","",0,"Horror",1990,"Een man wordt wakker zonder geheugen en ontdekt dat hij zich ‘s nachts teleporteert. Hij schakelt een detectivekoppel in om uit te zoeken wat er met hem gebeurt.");
+B("Koontz, Dean R.","Het visioen","The Vision","",0,"Horror",1977,"Een helderziende vrouw helpt de politie bij moordzaken, maar haar visioenen leiden naar haar eigen verdrongen verleden.");
+B("Koontz, Dean R.","Middernacht","Midnight","",0,"Horror",1989,"In een kustplaatje in Californië veranderen inwoners in wezens zonder menselijkheid, door een experiment van een computergenie.");
+B("Koontz, Dean R.","Schemerogen","Twilight Eyes","",0,"Horror",1985,"Een jongen die kermiswerk doet, ziet monsters die zich als mensen voordoen. Hij en zijn vriendin binden de strijd met ze aan.");
+B("Koontz, Dean R.","Tiktak","Ticktock","",0,"Horror",1996,"Een schrijver vindt een lappenpop voor zijn deur die tot leven komt en hem achtervolgt. Een excentrieke serveerster helpt hem.");
+B("Koontz, Dean R.","Verblind","From the Corner of His Eye","",0,"Horror",2000,"Een jongen die blind werd door kanker blijkt verborgen werelden te kunnen zien. Een moordenaar is vastbesloten hem te vinden.");
+B("Koontz, Dean R.","Weerlicht","Lightning","",0,"Horror",1988,"Op belangrijke momenten in het leven van Laura Shane verschijnt een mysterieuze beschermer, altijd tijdens onweer. Wie is hij en waar komt hij vandaan?");
+
+B("Krantz, Judith","Dazzle","Dazzle","",0,"Roman",1990,"Een succesvolle fotografe in Hollywood moet vechten voor de ranch van haar familie, terwijl haar liefdesleven op zijn kop staat.","In de Excel stond genre 'Biografie'");
+B("Krantz, Judith","Scruples","Scruples","",0,"Roman",1978,"Een rijke weduwe opent een exclusieve modeboetiek in Beverly Hills en vindt na veel tegenslagen de liefde.");
+B("Kuzneski, Chris","Teken van het kruis","Sign of the Cross","Payne & Jones",2,"Thriller",2006,"Over de hele wereld worden mensen gekruisigd. Jonathan Payne en David Jones komen een religieus complot op het spoor.");
+B("Läckberg, Camilla","Gouden kooi","En bur av guld","Faye",1,"Thriller",2019,"Faye gaf alles op voor haar man Jack, die haar bedriegt en vernedert. Als hij haar verlaat, smeedt ze een meedogenloos plan voor wraak.");
+B("Lathrop, John","The Desert Contract","The Desert Contract","",0,"Thriller",0,"");
+B("Larsson, Stieg","Mannen die vrouwen haten","Män som hatar kvinnor","Millennium",1,"Thriller",2005,"Journalist Mikael Blomkvist en hacker Lisbeth Salander onderzoeken de verdwijning van een meisje uit een rijke familie, veertig jaar geleden.");
+B("Larsson, Stieg","De vrouw die met vuur speelde","Flickan som lekte med elden","Millennium",2,"Thriller",2006,"Lisbeth Salander wordt verdacht van drie moorden. Mikael Blomkvist gelooft in haar onschuld, terwijl haar verleden boven water komt.");
+B("Larsson, Stieg","Gerechtigheid","Luftslottet som sprängdes","Millennium",3,"Thriller",2007,"Lisbeth Salander ligt zwaargewond in het ziekenhuis en wordt aangeklaagd. Blomkvist ontmaskert een geheime afdeling van de veiligheidsdienst.");
+B("Child, Lee","Jachtveld","Killing Floor","Jack Reacher",1,"Thriller",1997,"Ex-militair Jack Reacher wordt in een stadje in Georgia gearresteerd voor een moord die hij niet pleegde. Het slachtoffer blijkt zijn broer te zijn.");
+B("Child, Lee","Niet in woorden uit te drukken","","Jack Reacher",0,"Thriller",0,"");
+B("Lescroart, John T.","Schuldig","Guilt","",0,"Thriller",1997,"Een vooraanstaande advocaat in San Francisco wordt verdacht van de moord op zijn vrouw. De zaak legt een web van leugens bloot.");
+B("Long, Jeff","Het Jeruzalem virus","Year Zero","",0,"Thriller",2002,"Een oud reliekwijzer uit Jeruzalem bevat een virus dat sinds de oudheid geslapen heeft. Als het vrijkomt, verschijnen overleden mensen opnieuw.");
+B("Lucas, John","Spel der rijken","Tables","",0,"Roman",0,"");
+B("Ludlum, Robert","Het Janson dilemma","The Janson Directive","Paul Janson",1,"Thriller",2002,"Ex-agent Paul Janson moet een Nobelprijswinnaar bevrijden die gegijzeld wordt door terroristen, en wordt daarna zelf doelwit.");
+B("Ludlum, Robert","Het Bourne verraad","The Bourne Betrayal","Jason Bourne",5,"Thriller",2007,"Jason Bourne gaat op zoek naar een vermist vriend en ontdekt een terroristisch complot in Afrika.","Geschreven door Eric Van Lustbader");
+})(function (a, t, o, s, n, g, j, z, m) { window.BOEKEN.push({ a, t, o, s, n, g, j, z, m: m || "" }); });

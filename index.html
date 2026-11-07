@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f4ede1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#17130f" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="img/icon-192.png"><link rel="apple-touch-icon" href="img/icon-192.png">
+<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="Petra's boeken">
+<title>Petra's Boekenlijst</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,400;1,9..144,600&family=Instrument+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#f4ede1;--bg2:#ebe2d2;--card:#fffaf2;--line:#ddd1bd;--fg:#2a211a;--muted:#75685a;--faint:#a3968a;
+  --acc:#8c2f39;--acc2:#2f5d50;--acc-ink:#fff;--gold:#b8872f;--shadow:0 1px 2px rgba(60,40,20,.08),0 6px 18px rgba(60,40,20,.08);
+  --f-d:"Fraunces",Georgia,serif;--f-b:"Instrument Sans",system-ui,sans-serif}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#17130f;--bg2:#211b16;--card:#262019;--line:#3a3128;--fg:#f1e8da;--muted:#b3a593;--faint:#7e7163;
+  --acc:#e0868f;--acc2:#7fbfa9;--acc-ink:#17130f;--gold:#e0b45e;--shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.3)}}
+:root[data-theme="dark"]{
+  --bg:#17130f;--bg2:#211b16;--card:#262019;--line:#3a3128;--fg:#f1e8da;--muted:#b3a593;--faint:#7e7163;
+  --acc:#e0868f;--acc2:#7fbfa9;--acc-ink:#17130f;--gold:#e0b45e;--shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.3)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html,body{margin:0;background:var(--bg);color:var(--fg);font:400 16px/1.5 var(--f-b)}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:inherit}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px}
+.hidden{display:none!important}
+.view{min-height:100vh;min-height:100dvh;padding-bottom:calc(24px + env(safe-area-inset-bottom))}
+
+/* ---------- Startscherm ---------- */
+#start{position:relative;overflow:hidden;display:flex;flex-direction:column}
+.shelf{position:absolute;inset:0;display:grid;grid-template-columns:repeat(var(--cols,4),1fr);gap:10px;padding:10px;transform:rotate(-6deg) scale(1.25);transform-origin:center;opacity:.95;pointer-events:none}
+.shelf .c{aspect-ratio:2/3;border-radius:6px;overflow:hidden;box-shadow:var(--shadow);background:var(--bg2);animation:drift 40s linear infinite alternate}
+.shelf .c:nth-child(odd){animation-direction:alternate-reverse}
+@keyframes drift{from{transform:translateY(-10px)}to{transform:translateY(10px)}}
+@media (prefers-reduced-motion:reduce){.shelf .c{animation:none}}
+.veil{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 55%,color-mix(in srgb,var(--bg) 94%,transparent) 0%,color-mix(in srgb,var(--bg) 82%,transparent) 50%,color-mix(in srgb,var(--bg) 25%,transparent) 100%);pointer-events:none}
+.hero{position:relative;z-index:2;margin:auto;padding:calc(32px + env(safe-area-inset-top)) 20px 32px;text-align:center;max-width:560px;width:100%}
+.hero .kick{font:600 12px var(--f-b);letter-spacing:.22em;text-transform:uppercase;color:var(--acc)}
+.hero h1{font:800 clamp(44px,13vw,84px)/.95 var(--f-d);letter-spacing:-.03em;margin:.18em 0 .1em;font-variation-settings:"SOFT" 100,"WONK" 1}
+.hero h1 em{font-style:italic;font-weight:400;color:var(--acc)}
+.hero p.sub{color:var(--muted);margin:0 0 22px;font-size:15px}
+.stats{display:flex;justify-content:center;gap:22px;margin:0 0 22px}
+.stats b{display:block;font:700 26px var(--f-d);color:var(--fg)}
+.stats span{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.search{position:relative}
+.search input{width:100%;height:52px;border-radius:26px;border:1px solid var(--line);background:var(--card);padding:0 48px 0 48px;font-size:16px;box-shadow:var(--shadow);outline:none}
+.search input:focus{border-color:var(--acc)}
+.search svg{position:absolute;left:17px;top:50%;transform:translateY(-50%);width:20px;height:20px;color:var(--muted)}
+.search .x{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:18px;border:0;background:none;cursor:pointer;color:var(--muted);font-size:22px;line-height:1}
+.btns{display:flex;gap:10px;margin-top:14px}
+.btn{flex:1;height:50px;border-radius:25px;border:1px solid var(--line);background:var(--card);font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;padding:0 14px;white-space:nowrap}
+.btn.pri{background:var(--acc);border-color:var(--acc);color:var(--acc-ink)}
+.btn svg{width:18px;height:18px}
+.tap{margin-top:18px;font-size:13px;color:var(--faint)}
+
+/* ---------- Kopbalk ---------- */
+.bar{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top)}
+.bar .row{display:flex;align-items:center;gap:8px;height:56px}
+.bar h2{flex:1;margin:0;font:700 20px var(--f-d);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar h2 em{font-style:italic;font-weight:400;color:var(--acc)}
+.ib{width:42px;height:42px;border-radius:21px;border:1px solid var(--line);background:var(--card);display:grid;place-items:center;cursor:pointer;flex:none;text-decoration:none}
+.ib svg{width:20px;height:20px}
+.ib.pri{background:var(--acc);border-color:var(--acc);color:var(--acc-ink)}
+.bar .search{padding-bottom:10px}
+.bar .search input{height:46px;box-shadow:none}
+
+/* ---------- Lijst ---------- */
+.seg{display:flex;background:var(--bg2);border-radius:22px;padding:3px;margin:12px 0 0}
+.seg button{flex:1;border:0;background:none;height:36px;border-radius:19px;font-weight:600;font-size:14px;color:var(--muted);cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--card);color:var(--fg);box-shadow:var(--shadow)}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:10px 0 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--card);border-radius:16px;height:32px;padding:0 12px;font-size:13px;font-weight:500;cursor:pointer;color:var(--muted)}
+.chip[aria-pressed=true]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.tools{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted);padding:8px 0}
+.link{border:0;background:none;color:var(--acc);font-weight:600;cursor:pointer;padding:6px 0;font-size:13px}
+.au{background:var(--card);border:1px solid var(--line);border-radius:14px;margin:0 0 8px;overflow:hidden}
+.au>header{display:flex;align-items:center;gap:10px;padding:0 6px 0 14px;min-height:56px;cursor:pointer;user-select:none}
+.au .chev{width:18px;height:18px;transition:transform .2s;color:var(--faint);flex:none}
+.au.open .chev{transform:rotate(90deg)}
+.au .nm{flex:1;min-width:0}
+.au .nm b{font:600 17px var(--f-d);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.au .nm small{color:var(--muted);font-size:12.5px}
+.au .cnt{font:600 13px var(--f-b);background:var(--bg2);color:var(--muted);border-radius:12px;min-width:28px;height:24px;display:grid;place-items:center;padding:0 8px}
+.au .bio{width:40px;height:40px;border-radius:20px;border:0;background:none;display:grid;place-items:center;cursor:pointer;color:var(--acc)}
+.au .bio svg{width:20px;height:20px}
+.au ul{list-style:none;margin:0;padding:0 0 6px;display:none}
+.au.open ul{display:block}
+.au li a{display:flex;align-items:center;gap:12px;padding:8px 14px;text-decoration:none;border-top:1px solid color-mix(in srgb,var(--line) 60%,transparent)}
+.au li .th{width:34px;height:51px;border-radius:3px;flex:none;overflow:hidden;background:var(--bg2)}
+.au li .tt{flex:1;min-width:0}
+.au li .tt b{font-weight:600;display:block;line-height:1.3}
+.au li .tt small{color:var(--muted);font-size:12.5px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.au li .yr{font-size:12.5px;color:var(--faint);flex:none}
+mark{background:color-mix(in srgb,var(--gold) 35%,transparent);color:inherit;border-radius:2px;padding:0 1px}
+.az{position:fixed;right:max(2px,env(safe-area-inset-right));top:50%;transform:translateY(-40%);display:flex;flex-direction:column;z-index:15;touch-action:none}
+.az button{border:0;background:none;font:600 11px var(--f-b);color:var(--acc);padding:1.5px 6px;cursor:pointer;line-height:1.15}
+@media (min-width:900px){.az{right:calc(50% - 430px)}}
+@media (max-width:899px){#groups{margin-right:14px}}
+.empty{text-align:center;color:var(--muted);padding:48px 16px}
+
+/* ---------- Omslagen ---------- */
+.cov{width:100%;height:100%;position:relative;display:block;background:var(--g,#6b4f3a);color:#fff;overflow:hidden}
+.cov img{width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0;opacity:0;transition:opacity .4s}
+.cov img.ok{opacity:1}
+.cov .ph{position:absolute;inset:0;padding:12% 10%;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(160deg,rgba(255,255,255,.12),rgba(0,0,0,.18))}
+.cov .ph::before{content:"";position:absolute;left:6%;top:0;bottom:0;width:2px;background:rgba(255,255,255,.18)}
+.cov .ph b{font:600 clamp(9px,2.4vw,15px)/1.15 var(--f-d);display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+.cov .ph i{font:400 clamp(7px,1.8vw,11px)/1.2 var(--f-b);opacity:.85;font-style:normal;text-transform:uppercase;letter-spacing:.06em}
+.th .cov .ph{padding:4px}.th .cov .ph b,.th .cov .ph i{display:none}
+.cov.has .ph{display:none}
+
+/* ---------- Detail ---------- */
+.det{padding-top:18px}
+.det .top{display:flex;gap:18px;align-items:flex-end}
+.det .big{width:132px;flex:none;aspect-ratio:2/3;border-radius:8px;overflow:hidden;box-shadow:0 10px 30px rgba(40,25,10,.25)}
+.det .big .cov .ph b{font-size:15px}.det .big .cov .ph i{font-size:10px}
+.det h1{font:700 clamp(24px,6.5vw,34px)/1.12 var(--f-d);margin:0 0 6px;letter-spacing:-.01em}
+.det .orig{font-style:italic;color:var(--muted);margin:0 0 10px;font-family:var(--f-d)}
+.det .by{display:inline-flex;align-items:center;gap:6px;color:var(--acc);font-weight:600;text-decoration:none;padding:4px 0}
+.det .by svg{width:16px;height:16px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:22px 0}
+.fact{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.fact small{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint);font-weight:600}
+.fact span{font-weight:600}
+.sec h3{font:600 13px var(--f-b);text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:24px 0 8px}
+.sec p{margin:0;font-size:16.5px;line-height:1.6}
+.sec p.none{color:var(--faint);font-style:italic}
+.memo{width:100%;min-height:96px;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:12px;resize:vertical;outline:none;font-size:16px;line-height:1.5}
+.memo:focus{border-color:var(--acc)}
+.saved{font-size:12px;color:var(--acc2);height:18px;margin-top:4px;transition:opacity .3s}
+.acts{display:flex;gap:10px;margin:26px 0 8px;flex-wrap:wrap}
+.acts .btn{flex:1 1 140px;height:46px}
+.btn.danger{color:#b3261e;border-color:color-mix(in srgb,#b3261e 40%,var(--line))}
+
+/* ---------- Schrijver ---------- */
+.ahead{padding:22px 0 6px}
+.ahead .ini{width:64px;height:64px;border-radius:32px;background:var(--acc);color:var(--acc-ink);display:grid;place-items:center;font:700 24px var(--f-d);margin-bottom:12px}
+.ahead h1{font:700 clamp(28px,8vw,40px)/1.05 var(--f-d);margin:0 0 4px}
+.ahead .meta{color:var(--muted)}
+.tl{list-style:none;margin:8px 0 0;padding:0;position:relative}
+.tl::before{content:"";position:absolute;left:44px;top:8px;bottom:8px;width:2px;background:var(--line)}
+.tl li a{display:flex;align-items:center;gap:14px;padding:8px 0;text-decoration:none}
+.tl .y{width:36px;font:700 13px var(--f-b);color:var(--acc);text-align:right;flex:none}
+.tl .dot{width:10px;height:10px;border-radius:5px;background:var(--acc);flex:none;position:relative;z-index:1;box-shadow:0 0 0 3px var(--bg)}
+.tl .th{width:40px;height:60px;border-radius:4px;overflow:hidden;flex:none}
+.tl .tt b{display:block;font-weight:600;line-height:1.3}
+.tl .tt small{color:var(--muted);font-size:13px}
+
+/* ---------- Formulier ---------- */
+form.ed{padding:18px 0}
+.fld{margin:0 0 14px}
+.fld label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin:0 0 5px}
+.fld input,.fld select,.fld textarea{width:100%;height:48px;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:0 14px;font-size:16px;outline:none}
+.fld textarea{height:auto;min-height:110px;padding:12px 14px;line-height:1.5;resize:vertical}
+.fld input:focus,.fld select:focus,.fld textarea:focus{border-color:var(--acc)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hint{font-size:13px;color:var(--faint);margin:-6px 0 14px}
+
+/* ---------- Menu & melding ---------- */
+.sheet{position:fixed;inset:0;z-index:50;background:rgba(20,12,5,.45);display:flex;align-items:flex-end;justify-content:center}
+.sheet .in{background:var(--bg);width:100%;max-width:520px;border-radius:20px 20px 0 0;padding:10px 16px calc(18px + env(safe-area-inset-bottom))}
+.sheet .grab{width:40px;height:4px;border-radius:2px;background:var(--line);margin:4px auto 12px}
+.sheet button.it{display:flex;width:100%;align-items:center;gap:12px;border:0;background:none;padding:14px 6px;border-bottom:1px solid var(--line);cursor:pointer;text-align:left;font-weight:500}
+.sheet button.it:last-child{border-bottom:0}
+.sheet .it svg{width:20px;height:20px;color:var(--acc)}
+.sheet .it small{display:block;color:var(--muted);font-weight:400;font-size:13px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(120%);background:var(--fg);color:var(--bg);padding:10px 18px;border-radius:22px;font-size:14px;font-weight:500;z-index:60;transition:transform .25s;max-width:90vw}
+.toast.on{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<!-- Startscherm -->
+<section id="start" class="view">
+  <div class="shelf" id="shelf" aria-hidden="true"></div>
+  <div class="veil"></div>
+  <div class="hero">
+    <div class="kick">Gelezen &amp; bewaard</div>
+    <h1>Petra's <em>Boeken</em>lijst</h1>
+    <p class="sub">Alle boeken die Petra heeft gelezen, per schrijver.</p>
+    <div class="stats"><div><b id="nB">0</b><span>boeken</span></div><div><b id="nA">0</b><span>schrijvers</span></div><div><b id="nW">0</b><span>op de wensenlijst</span></div></div>
+    <form class="search" id="startSearch" role="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="qStart" type="search" placeholder="Zoek op schrijver of titel" autocomplete="off" enterkeyhint="search" aria-label="Zoek op schrijver of titel">
+    </form>
+    <div class="btns">
+      <a class="btn pri" href="#/lijst"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 19.5V5a2 2 0 0 1 2-2h14v16H6a2 2 0 0 0-2 2Zm0 0A2 2 0 0 0 6 22h14"/></svg>Naar de lijst</a>
+      <a class="btn" href="#/nieuw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Boek toevoegen</a>
+    </div>
+    <div class="tap">Tik op de boeken om verder te gaan</div>
+  </div>
+</section>
+
+<!-- Overzicht -->
+<section id="lijst" class="view hidden">
+  <div class="bar"><div class="wrap">
+    <div class="row">
+      <a class="ib" href="#/" aria-label="Naar het startscherm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg></a>
+      <h2>Petra's <em>Boeken</em>lijst</h2>
+      <button class="ib" id="menuBtn" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+      <a class="ib pri" href="#/nieuw" aria-label="Boek toevoegen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></a>
+    </div>
+    <form class="search" role="search" onsubmit="return false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="Zoek op schrijver of titel" autocomplete="off" enterkeyhint="search" aria-label="Zoek op schrijver of titel">
+      <button type="button" class="x hidden" id="qx" aria-label="Wis zoekopdracht">×</button>
+    </form>
+  </div></div>
+  <div class="wrap">
+    <div class="seg" role="group"><button id="tGel" aria-pressed="true">Gelezen</button><button id="tWens" aria-pressed="false">Wensenlijst</button></div>
+    <div class="chips" id="chips"></div>
+    <div class="tools"><span id="cnt"></span><button class="link" id="allBtn">Alles openklappen</button></div>
+    <div id="groups"></div>
+  </div>
+  <nav class="az" id="az" aria-label="Spring naar letter"></nav>
+</section>
+
+<!-- Boek -->
+<section id="boek" class="view hidden">
+  <div class="bar"><div class="wrap"><div class="row">
+    <button class="ib" onclick="goBack()" aria-label="Terug"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <h2 id="bBar"></h2>
+    <a class="ib" id="bEdit" aria-label="Bewerken"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></a>
+  </div></div></div>
+  <div class="wrap det" id="bBody"></div>
+</section>
+
+<!-- Schrijver -->
+<section id="schrijver" class="view hidden">
+  <div class="bar"><div class="wrap"><div class="row">
+    <button class="ib" onclick="goBack()" aria-label="Terug"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <h2 id="sBar"></h2>
+    <button class="ib" id="sEdit" aria-label="Bio bewerken"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
+  </div></div></div>
+  <div class="wrap" id="sBody"></div>
+</section>
+
+<!-- Toevoegen / bewerken -->
+<section id="nieuw" class="view hidden">
+  <div class="bar"><div class="wrap"><div class="row">
+    <button class="ib" onclick="goBack()" aria-label="Annuleren"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <h2 id="fTitle">Boek toevoegen</h2>
+  </div></div></div>
+  <div class="wrap">
+    <form class="ed" id="form" autocomplete="off">
+      <div class="fld"><label for="fA">Schrijver *</label><input id="fA" list="dlA" required placeholder="Achternaam, Voornaam"></div>
+      <p class="hint">Bijvoorbeeld ‘King, Stephen’. Kies een bestaande naam uit de lijst, dan komt het boek bij de juiste schrijver.</p>
+      <div class="fld"><label for="fT">Titel (Nederlands) *</label><input id="fT" required></div>
+      <div class="fld"><label for="fO">Oorspronkelijke / Engelse titel</label><input id="fO"></div>
+      <div class="two">
+        <div class="fld"><label for="fS">Serie</label><input id="fS" list="dlS"></div>
+        <div class="fld"><label for="fN">Deel</label><input id="fN" type="number" min="0" inputmode="numeric"></div>
+      </div>
+      <div class="two">
+        <div class="fld"><label for="fG">Soort boek</label><input id="fG" list="dlG"></div>
+        <div class="fld"><label for="fJ">Jaar verschenen</label><input id="fJ" type="number" min="1000" max="2100" inputmode="numeric"></div>
+      </div>
+      <div class="fld"><label for="fZ">Korte samenvatting</label><textarea id="fZ"></textarea></div>
+      <div class="fld"><label for="fM">Memo</label><textarea id="fM" placeholder="Eigen aantekeningen, cijfer, waar het boek ligt…"></textarea></div>
+      <div class="fld" id="fWrap"><label><input type="checkbox" id="fW" style="width:auto;height:auto;margin-right:8px">Op de wensenlijst zetten (nog niet gelezen)</label></div>
+      <div class="acts"><button class="btn pri" type="submit">Opslaan</button><button class="btn danger hidden" type="button" id="fDel">Verwijderen</button></div>
+    </form>
+    <datalist id="dlA"></datalist><datalist id="dlS"></datalist><datalist id="dlG"></datalist>
+  </div>
+</section>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="impFile" accept="application/json,.json" class="hidden">
+
+<script src="data-boeken-1.js"></script>
+<script src="data-boeken-2.js"></script>
+<script src="data-boeken-3.js"></script>
+<script src="data-boeken-4.js"></script>
+<script src="data-schrijvers.js"></script>
+<script src="data-wensen.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

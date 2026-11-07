@@ -1,0 +1,117 @@
+/* Petra's boekenlijst — deel 1 (A t/m G)
+   Velden: auteur, Nederlandse titel, oorspronkelijke titel, serie, deel, genre, jaar (oorspronkelijk verschenen), samenvatting, opmerking
+   Bron: "Boekenlijst Petra.xlsx" (tabblad Petra's boekenlijst), aangevuld met jaar, serie-deel en samenvatting. */
+window.BOEKEN = window.BOEKEN || [];
+(function (B) {
+B("Andrews, Virginia","Als er doornen zijn","If There Be Thorns","Dollanganger",3,"Roman",1981,"Jaren na hun ontsnapping van zolder hebben Cathy en Chris een gezin gesticht. Hun zoons Jory en Bart raken in de ban van een geheimzinnige oude vrouw in het huis naast hen, die het verleden van de familie kent.");
+B("Andrews, Virginia","Bloemen in de wind","Petals on the Wind","Dollanganger",2,"Roman",1980,"Cathy, Chris en Carrie zijn ontsnapt en worden opgevangen door een arts. Cathy bouwt een carrière als balletdanseres op, maar blijft geobsedeerd door wraak op de moeder die hen jarenlang opsloot.");
+B("Andrews, Virginia","Bloemen op zolder","Flowers in the Attic","Dollanganger",1,"Roman",1979,"Na de dood van hun vader worden vier kinderen door hun moeder op zolder van het landhuis van hun strenge grootmoeder verstopt. Wat een paar dagen zou duren, worden jaren van opsluiting, honger en verraad.");
+B("Andrews, Virginia","De droom van een engel","Web of Dreams","De Casteel Serie",5,"Roman",1990,"Het voorverhaal van de serie: Heaven leest het dagboek van haar grootmoeder Leigh en ontdekt welke duistere familiegeheimen aan haar eigen geboorte voorafgingen.");
+B("Andrews, Virginia","De duistere engel","Dark Angel","De Casteel Serie",2,"Roman",1986,"Heaven Casteel gaat bij de rijke familie van haar overleden moeder in Boston wonen. Achter de luxe gaan nieuwe geheimen en verleidingen schuil.");
+B("Andrews, Virginia","De gevallen engel","Fallen Hearts","De Casteel Serie",3,"Roman",1988,"Heaven trouwt met haar jeugdliefde Logan en keert terug naar de Willies, maar haar verleden en haar stiefvader Tony blijven haar achtervolgen.");
+B("Andrews, Virginia","Een engel voor het paradijs","Gates of Paradise","De Casteel Serie",4,"Roman",1989,"Annie, de dochter van Heaven, raakt na een ongeluk waarbij haar ouders omkomen verlamd en belandt op het landgoed Farthinggale, waar ze zich een gevangene voelt.");
+B("Andrews, Virginia","Het zaad van gisteren","Seeds of Yesterday","Dollanganger",4,"Roman",1984,"Het slot van de Dollanganger-reeks: Cathy en Chris trekken in een kopie van Foxworth Hall, waar hun zoon Bart steeds meer op zijn duistere overgrootvader gaat lijken.");
+B("Andrews, Virginia","Hemel zonder engelen","Heaven","De Casteel Serie",1,"Roman",1985,"Heaven Leigh Casteel groeit op in bittere armoede in de bergen van West Virginia. Als haar vader zijn kinderen verkoopt, begint voor haar een strijd om liefde en een beter leven.");
+
+B("Baldacci, David","De provocatie","Zero Day","John Puller",1,"Thriller",2011,"Militair onderzoeker John Puller onderzoekt de moord op een gezin in een mijnstadje in West Virginia en stuit op een complot dat het hele land bedreigt.");
+B("Baldacci, David","De verraders","Stone Cold","Camel Club",3,"Thriller",2007,"De Camel Club rond Oliver Stone krijgt te maken met een slimme oplichtster en met een sluipmoordenaar die het op Stone zelf gemunt heeft.");
+B("Baldacci, David","Duister lot","The Winner","",0,"Thriller",1997,"Een arme jonge moeder wint de loterij met hulp van een mysterieuze man – maar de prijs is hoog. Tien jaar later keert ze terug en komt ze erachter hoe de loterij werkelijk in elkaar zat.");
+B("Baldacci, David","Het recht van de macht","Absolute Power","",0,"Thriller",1996,"Een inbreker is ooggetuige van een moord in een villa, gepleegd met medeweten van de president van de Verenigde Staten. Het debuut van Baldacci, verfilmd door Clint Eastwood.");
+B("Baldacci, David","In het geheim","True Blue","",0,"Thriller",2009,"De geschorste politieagente Mace Perry wil haar naam zuiveren en raakt samen met advocaat Roy Kingman verwikkeld in een moordzaak in Washington.");
+B("Baldacci, David","Onschuldig","The Innocent","Will Robie",1,"Thriller",2012,"Huurmoordenaar Will Robie weigert een opdracht uit te voeren en moet daarna vluchten voor zijn eigen werkgevers, samen met een tienermeisje dat op de vlucht is.");
+B("Baldacci, David","Rechteloos","Hell's Corner","Camel Club",5,"Thriller",2010,"Oliver Stone wordt opgeroepen voor een laatste missie, maar raakt betrokken bij een bomaanslag vlak bij het Witte Huis.");
+B("Baldacci, David","Vuil spel","The Simple Truth","",0,"Thriller",1998,"Een veroordeelde soldaat schrijft vanuit de gevangenis naar het Hooggerechtshof. Als een jonge medewerker de brief leest en daarna vermoord wordt, komt een doofpotaffaire aan het licht.");
+
+B("Barker, Clive","De dief van altijd","The Thief of Always","",0,"Horror",1992,"De verveelde Harvey wordt meegenomen naar een betoverend vakantiehuis waar elke dag feest is. Maar wie er blijft, betaalt met de jaren van zijn leven. Een sprookjesachtig griezelverhaal.");
+B("Barker, Clive","Duivelsspel","The Damnation Game","",0,"Horror",1985,"Een ex-gevangene wordt lijfwacht van een steenrijke man die ooit een duivelse gokpartij won – en nu de rekening gepresenteerd krijgt.");
+B("Barker, Clive","Hellehart","The Hellbound Heart","Hellehart / The Hellbound Heart",0,"Horror",1986,"Frank opent een mysterieuze puzzeldoos en roept daarmee de Cenobieten op, wezens die pijn en genot niet van elkaar onderscheiden. De basis voor de film Hellraiser.","Serie met Ramsey Campbell & Lisa Tuttle");
+
+B("Bernlef, J.","Hersenschimmen","","",0,"Non-Fictie",1984,"Maarten Klein, een gepensioneerde man in Massachusetts, raakt langzaam dement. Het verhaal wordt vanuit zijn eigen verwarde gedachten verteld. Een klassieker uit de Nederlandse literatuur.");
+B("Bingley, Margaret","De lieverdjes van Lower Litton","The Unquiet Dead","",0,"Horror",1987,"In een rustig Engels dorp gedragen de kinderen zich steeds vreemder. Er lijkt iets kwaadaardigs bezit van hen te nemen.");
+B("Bosnak, Karyn","Nummer twintig","20 Times a Lady","",0,"Roman",2006,"Delilah heeft met negentien mannen geslapen en besluit dat de twintigste de ware moet zijn. Ze gaat haar exen af om te zien of een van hen toch de juiste was. Verfilmd als What's Your Number?");
+B("Bjørk, Samuel","De doodsvogel","Uglen","Holger Munch & Mia Krüger",2,"Thriller",2015,"Een meisje wordt dood gevonden in een bos bij Oslo, liggend op veren in een kring van kaarsen. Holger Munch en Mia Krüger zoeken een moordenaar die een uil als symbool lijkt te gebruiken.");
+B("Brink, Noortje","(titel onbekend)","","",0,"Thriller",0,"","In de Excel-lijst stond bij dit boek geen titel");
+
+B("Brown, Dan","Het Bernini mysterie","Angels & Demons","Robert Langdon",1,"Fictie",2000,"Symboliekdeskundige Robert Langdon wordt naar Rome geroepen als de Illuminati dreigen Vaticaanstad op te blazen tijdens het conclaaf.");
+B("Brown, Dan","De Da Vinci code","The Da Vinci Code","Robert Langdon",2,"Fictie",2003,"Na een moord in het Louvre volgen Robert Langdon en cryptologe Sophie Neveu een spoor van codes in de kunst van Leonardo da Vinci, op zoek naar het geheim van de Heilige Graal.");
+B("Brown, Dan","Het Juvenalis dilemma","Digital Fortress","",0,"Fictie",1998,"De NSA stuit op een code die haar supercomputer niet kan kraken. Cryptografe Susan Fletcher moet uitzoeken wat erachter zit voordat de inlichtingendienst blind wordt.");
+B("Brown, Dan","Oorsprong","Origin","Robert Langdon",5,"Fictie",2017,"Een futurist wil in het Guggenheim in Bilbao een ontdekking onthullen over de oorsprong en de toekomst van de mensheid, maar wordt vermoord. Langdon probeert de presentatie alsnog naar buiten te brengen.");
+B("Brown, Sandra","Ontvoerd","Mean Streak","",0,"Thriller",2014,"Kinderarts Emory Charbonneau verdwijnt tijdens het hardlopen in de bergen. Ze wordt wakker in de hut van een zwijgzame vreemdeling – is hij haar redder of haar ontvoerder?");
+
+B("Campbell, Ramsey","De wezenlijke oorzaak","","Hellehart / The Hellbound Heart",0,"Horror",0,"Verhaal uit de Hellehart-bundel met griezelverhalen van Clive Barker, Ramsey Campbell en Lisa Tuttle.","Serie met Clive Barker & Lisa Tuttle");
+B("Campbell, Ramsey","Deze keer","","Hellehart / The Hellbound Heart",0,"Horror",0,"Verhaal uit de Hellehart-bundel met griezelverhalen van Clive Barker, Ramsey Campbell en Lisa Tuttle.","Serie met Clive Barker & Lisa Tuttle");
+B("Campbell, Ramsey","Een verhaaltje voor het slapen gaan","","Hellehart / The Hellbound Heart",0,"Horror",0,"Verhaal uit de Hellehart-bundel met griezelverhalen van Clive Barker, Ramsey Campbell en Lisa Tuttle.","Serie met Clive Barker & Lisa Tuttle");
+B("Campbell, Ramsey","Gemiste aansluiting","","Hellehart / The Hellbound Heart",0,"Horror",0,"Verhaal uit de Hellehart-bundel met griezelverhalen van Clive Barker, Ramsey Campbell en Lisa Tuttle.","Serie met Clive Barker & Lisa Tuttle");
+B("Campbell, Ramsey","In de bomen","","Hellehart / The Hellbound Heart",0,"Horror",0,"Verhaal uit de Hellehart-bundel met griezelverhalen van Clive Barker, Ramsey Campbell en Lisa Tuttle.","Serie met Clive Barker & Lisa Tuttle");
+B("Campbell, Ramsey","Naar buiten kijken","","Hellehart / The Hellbound Heart",0,"Horror",0,"Verhaal uit de Hellehart-bundel met griezelverhalen van Clive Barker, Ramsey Campbell en Lisa Tuttle.","Serie met Clive Barker & Lisa Tuttle");
+
+B("Cole, Martina","Gevaarlijke dame","Dangerous Lady","",0,"Thriller",1992,"Maura Ryan groeit op in een Iers-Londens gangstergezin in het East End en werkt zich op tot de machtigste en meest gevreesde vrouw van de Londense onderwereld.");
+
+B("Collins, Jackie","De liefdesformule","The Love Killers","",0,"Roman",1974,"Na de moord op haar moeder zint de dochter van een maffiabaas op wraak. Ze lokt de daders in een val met behulp van haar charme.");
+B("Collins, Jackie","De macho","The Stud","",0,"Roman",1969,"Tony Blake werkt zich op van ober tot gastheer van een exclusieve Londense nachtclub, dankzij de rijke vrouwen die hij verleidt.");
+B("Collins, Jackie","De wellustigen","Hollywood Wives","",0,"Roman",1983,"Achter de glamour van Beverly Hills spelen de vrouwen van filmsterren en producers een spel van macht, roem en bedrog, terwijl een moordenaar onderweg is naar Hollywood.");
+B("Collins, Jackie","De wereld is vol gescheiden vrouwen","The World Is Full of Divorced Women","",0,"Roman",1975,"Het leven van een groep vrouwen in Londen en New York die na hun scheiding hun weg zoeken in een wereld van feesten, affaires en ambitie.");
+B("Collins, Jackie","Gevaarlijke kus","Dangerous Kiss","Santangelo",5,"Roman",1999,"Lucky Santangelo runt een filmstudio, maar als een geliefde wordt doodgeschoten bij een overval, gaat ze op zoek naar de waarheid.");
+B("Collins, Jackie","Lady Boss","Lady Boss","Santangelo",3,"Roman",1990,"Lucky Santangelo neemt in het geheim de leiding over een Hollywood-filmstudio over en moet het opnemen tegen vijanden van alle kanten.");
+B("Collins, Jackie","Lovers en players","Lovers & Players","",0,"Roman",2006,"Drie zonen van een schatrijke New Yorkse zakenman komen samen voor zijn bruiloft. Familiegeheimen, liefdes en een moord volgen.");
+B("Collins, Jackie","Lucky","Lucky","Santangelo",2,"Roman",1985,"Lucky Santangelo, dochter van maffiabaas Gino, bouwt haar eigen imperium op in Las Vegas en neemt het op tegen de vijanden van haar familie.");
+B("Collins, Jackie","Rockstar","Rock Star","",0,"Roman",1988,"De levens van drie wereldberoemde muzieksterren komen samen tijdens een benefietconcert, terwijl een gestoorde fan uit is op wraak.");
+B("Collins, Jackie","Stad van verleiding","Sinners","",0,"Roman",1971,"Een filmploeg strijkt neer in een klein stadje voor opnames, en de aanwezigheid van de sterren zet de levens van de inwoners op hun kop.");
+
+B("Cook, Robin","Embryo","Vital Signs","",0,"Medische Thriller",1991,"Gynaecologe Marissa Blumenthal ondergaat een vruchtbaarheidsbehandeling en ontdekt dat meerdere vrouwen dezelfde zeldzame complicatie kregen. Haar onderzoek leidt naar een kliniek met een duister geheim.");
+B("Cook, Robin","Risico","Acceptable Risk","",0,"Medische Thriller",1995,"Een neurowetenschapper ontwikkelt een nieuw medicijn uit een schimmel die in verband wordt gebracht met de heksenprocessen van Salem. De bijwerkingen blijken angstaanjagend.");
+B("Cook, Robin","Shock","Shock","",0,"Medische Thriller",2001,"Twee studentes doneren eicellen aan een vruchtbaarheidskliniek. Als ze nieuwsgierig worden naar wat ermee gebeurt, ontdekken ze praktijken rond klonen en stamcelonderzoek.");
+B("Cook, Robin","Vergiftigd","Toxin","",0,"Thriller",1998,"Als zijn dochter overlijdt aan een E. coli-besmetting na een hamburger, gaat chirurg Kim Reggis de vleesindustrie onderzoeken en stuit hij op grove nalatigheid.");
+B("Cook, Robin","Verminkt","Chromosome 6","Jack Stapleton & Laurie Montgomery",3,"Medische Thriller",1997,"Patholoog Jack Stapleton onderzoekt een verdwenen lijk van een maffialid en komt uit bij een geheim lab in Afrika waar met genetisch gemodificeerde apen wordt geëxperimenteerd.");
+
+B("Cornwell, Patricia","Corpus delicti","Body of Evidence","Kay Scarpetta",2,"Thriller",1991,"Lijkschouwer Kay Scarpetta onderzoekt de moord op een schrijfster die werd gestalkt. Het manuscript waaraan ze werkte, blijkt de sleutel.");
+B("Cornwell, Patricia","De brandhaard","Point of Origin","Kay Scarpetta",9,"Thriller",1998,"Na een verwoestende brand op een paardenboerderij vindt Kay Scarpetta een lijk dat al dood was voordat het vuur begon. Tegelijk ontsnapt haar aartsvijandin Carrie Grethen.");
+B("Cornwell, Patricia","Het Kaïnsteken","From Potter's Field","Kay Scarpetta",6,"Thriller",1995,"Op kerstavond wordt in Central Park een vrouw vermoord. Kay Scarpetta jaagt opnieuw op seriemoordenaar Temple Gault, ditmaal in de tunnels onder New York.");
+B("Cornwell, Patricia","Fataal weekend","Postmortem","Kay Scarpetta",1,"Thriller",1990,"Het eerste Scarpetta-boek: in Richmond worden vrouwen in hun eigen huis gewurgd. Kay Scarpetta zoekt met forensische technieken naar de dader, terwijl ze haar eigen positie moet verdedigen.");
+B("Cornwell, Patricia","Wespennest","Hornet's Nest","Andy Brazil",1,"Thriller",1997,"In Charlotte worden zakenmensen vermoord. Politiechefs Judy Hammer en Virginia West werken met de jonge journalist Andy Brazil aan de zaak.");
+B("Cornwell, Patricia","Zuiderkruis","Southern Cross","Andy Brazil",2,"Thriller",1998,"Judy Hammer, Virginia West en Andy Brazil gaan naar Richmond om het korps daar op te schonen, terwijl een jeugdbende de stad onveilig maakt.");
+
+B("Coscarelli, Kate","Roem","Fame and Fortune","",0,"Roman",1984,"Een groep rijke vrouwen in Beverly Hills: hun vriendschappen, hun liefdes en de rivaliteit achter hun luxe leven.");
+B("Craig, Robert","Trauma","Trauma","",0,"Thriller",0,"");
+B("Deaver, Jeffery","Idolaat","XO","Kathryn Dance",3,"Thriller",2012,"Countryzangeres Kayleigh Towne wordt gestalkt door een fan. Als mensen om haar heen worden vermoord, schakelt ze verhoordeskundige Kathryn Dance in.","In de Excel stond 'sid' als auteur");
+B("Diehl, William","Het teken van het beest","Primal Fear","Martin Vail",1,"Thriller",1993,"Een jonge misdienaar wordt gearresteerd voor de gruwelijke moord op een aartsbisschop. Advocaat Martin Vail neemt de zaak aan, maar is zijn cliënt wel wie hij lijkt? Verfilmd met Richard Gere en Edward Norton.");
+B("Dieudonné, Paul","Rechercheur De Klerck: En het doodvonnis","","Rechercheur De Klerck",1,"Detective",0,"Het eerste deel van de detectivereeks rond rechercheur De Klerck.");
+B("Dieudonné, Paul","Rechercheur De Klerck: Het duivelsspel","","Rechercheur De Klerck",2,"Detective",0,"Het tweede deel van de detectivereeks rond rechercheur De Klerck.");
+B("Dieudonné, Paul","Rechercheur De Klerck: De ongrijpbare dood","","Rechercheur De Klerck",3,"Detective",0,"Het derde deel van de detectivereeks rond rechercheur De Klerck.");
+B("Dieudonné, Paul","Rechercheur De Klerck: Het lijk in transito","","Rechercheur De Klerck",4,"Detective",0,"Het vierde deel van de detectivereeks rond rechercheur De Klerck.");
+B("Dijkzeul, Lieneke","De geur van regen","","",0,"Thriller",0,"");
+
+B("Feist, Raymond E.","'n Boosaardig sprookje","Faerie Tale","",0,"Horror",1988,"Een gezin verhuist naar een oude boerderij in de staat New York. Al snel merken de tweelingzonen dat in het bos achter het huis kwaadaardige elfen wonen.");
+B("Fossum, Karin","De nacht van vier november","Drapet","",0,"Thriller",2002,"Een jongeman rijdt op een nacht een fietser dood en pleegt doorrijden. Het boek volgt zijn schuldgevoel, zijn leugens en de gevolgen voor zijn leven.");
+B("Fossum, Karin","Eva's oog","Evas øye","Konrad Sejer",1,"Thriller",1995,"Een alleenstaande moeder vindt met haar dochtertje een lijk in de rivier. Inspecteur Konrad Sejer ontdekt dat zij meer weet dan ze zegt.");
+B("Fossum, Karin","Ik kan in het donker zien","Jeg kan se i mørket","",0,"Thriller",2011,"Een eenzame verpleger in een verzorgingshuis mishandelt in het geheim de bejaarden. Als hij gearresteerd wordt voor een moord die hij niet pleegde, keert alles zich tegen hem.");
+B("Francis, Dick","Het gevaar","The Danger","",0,"Thriller",1983,"Andrew Douglas is specialist in ontvoeringen. Als een beroemde jockey in Italië wordt ontvoerd, moet hij het losgeld veilig afhandelen – en de ontvoerder vinden.");
+B("Fraser, Sylvia","Het huis van mijn vader","My Father's House: A Memoir of Incest and of Healing","",0,"Non-Fictie",1987,"Autobiografisch verhaal van een Canadese schrijfster die op latere leeftijd herinneringen terugkrijgt aan het misbruik door haar vader, en haar weg naar herstel.");
+
+B("Gastel, Chantal van","Zwaar verliefd!","","Isa & Ruben",1,"Roman",2008,"Isa is een paar kilo te zwaar en is verliefd op haar knappe collega Ruben. Ze besluit te gaan sporten en lijnen, maar of ze daarmee zijn hart verovert?");
+B("George, Elizabeth","Een onafwendbaar einde","What Came Before He Shot Her","Inspector Lynley",14,"Thriller",2006,"Het verhaal van de twaalfjarige Joel en zijn broer en zus in een arme wijk van Londen, en hoe hun leven uitloopt op het schot dat Helen Lynley doodde.");
+B("George, Elizabeth","In volmaakte stilte","With No One as Witness","Inspector Lynley",13,"Thriller",2005,"Een seriemoordenaar vermoordt tienerjongens in Londen. Inspector Lynley en Barbara Havers staan onder grote druk van de media.");
+B("George, Elizabeth","Het Fluistereiland 1 - Stormgevaar","The Edge of Nowhere","Het Fluistereiland",1,"Thriller",2012,"Becca kan de gedachten van anderen horen. Op de vlucht voor haar gevaarlijke stiefvader komt ze terecht op Whidbey Island, waar ze betrokken raakt bij een mysterieus ongeluk.");
+B("George, Elizabeth","Het Fluistereiland 2 - Ik weet wat je denkt","The Edge of the Water","Het Fluistereiland",2,"Thriller",2014,"Becca blijft op Whidbey Island ondergedoken. Een vreemd meisje duikt op aan de waterkant en het eiland zit vol geheimen.");
+B("George, Elizabeth","Het Fluistereiland 3 - Schaduwkant","The Edge of the Shadows","Het Fluistereiland",3,"Thriller",2015,"Een reeks branden houdt Whidbey Island in de greep. Becca moet haar gave gebruiken terwijl haar verleden haar dreigt in te halen.");
+B("George, Elizabeth","Het Fluistereiland 4 - Achter het licht","The Edge of the Light","Het Fluistereiland",4,"Thriller",2016,"Het slot van de reeks: Becca moet het opnemen tegen haar stiefvader en de waarheid over haar gave onder ogen zien.");
+
+B("Gerritsen, Tess","Alarmfase rood","Gravity","",0,"Thriller",1999,"In het internationale ruimtestation breekt een mysterieuze infectie uit. Arts en astronaute Emma Watson zit vast in de ruimte, terwijl op aarde wordt gediscussieerd of de bemanning terug mag komen.");
+B("Gerritsen, Tess","De chirurg","The Surgeon","Rizzoli & Isles",1,"Thriller",2001,"In Boston worden vrouwen vermoord door een dader die chirurgische precisie gebruikt. Rechercheur Jane Rizzoli ontdekt een verband met een arts die ooit een soortgelijke aanval overleefde.");
+B("Gerritsen, Tess","Dicht op de hielen","","",0,"Thriller",0,"");
+B("Gerritsen, Tess","Hartslag","Harvest","",0,"Thriller",1996,"Een jonge chirurg in Boston ontdekt dat er in haar ziekenhuis harten worden getransplanteerd waarvan de herkomst niet klopt: een internationale handel in organen.");
+B("Gerritsen, Tess","Ik weet een geheim","I Know a Secret","Rizzoli & Isles",12,"Thriller",2017,"Twee moorden lijken geïnspireerd op heiligenlevens. Jane Rizzoli en Maura Isles stuiten op een vrouw die als kind slachtoffer was van een beruchte ontvoering.");
+B("Gerritsen, Tess","Meisje vermist","Girl Missing","",0,"Thriller",1994,"Patholoog Kat Novak onderzoekt in Albion een reeks doden door een nieuwe drug onder rijke jongeren. Het spoor leidt naar invloedrijke families.");
+B("Gerritsen, Tess","Koud hart","The Bone Garden","",0,"Thriller",2007,"Een vrouw vindt in de tuin van haar nieuwe huis een skelet uit de negentiende eeuw. Het verhaal wisselt af met het Boston van 1830, waar een moordenaar onder medici rondwaart.");
+B("Gerritsen, Tess","Schaduw van de nacht","The Shape of Night","",0,"Thriller",2019,"Na een traumatische gebeurtenis trekt Ava zich terug in een oud huis aan de kust van Maine. Ze voelt de aanwezigheid van een vroegere bewoner, terwijl in het dorp een vrouw dood wordt gevonden.");
+B("Gerritsen, Tess","Spelen met vuur","Playing with Fire","",0,"Thriller",2015,"Violiste Julia vindt in Rome een oud muziekstuk. Telkens als ze het speelt, gedraagt haar dochtertje zich gewelddadig. Ze zoekt uit waar de wals vandaan komt – en belandt in het Venetië van de Tweede Wereldoorlog.");
+B("Gerritsen, Tess","Stille getuige","Keeper of the Bride","",0,"Thriller",1996,"Nell overleeft ternauwernood een bomaanslag op haar bruiloft. Een rechercheur moet haar beschermen tegen een dader die het nog niet heeft opgegeven.");
+B("Gerritsen, Tess","Zuster moord","Body Double","Rizzoli & Isles",4,"Thriller",2004,"Maura Isles komt thuis en vindt een vermoorde vrouw voor haar deur die precies op haar lijkt: haar onbekende tweelingzus.");
+
+B("Goldsmith, Olivia","Foute mannen","Bad Boy","",0,"Fictie",2001,"Saaie computernerd Jonathan wil indruk maken op zijn jeugdvriendin Tracy, die alleen op foute mannen valt. Met haar hulp wordt hij omgevormd tot bad boy – met onverwachte gevolgen.");
+B("Goudge, Eileen","Tuin der leugens","Garden of Lies","",0,"Roman",1989,"Twee baby's worden in een ziekenhuis in New York verwisseld. Jaren later kruisen de levens van de twee dochters elkaar.");
+B("Green, Jane","De ware toch?","Mr. Maybe","",0,"Fictie",1999,"Libby moet kiezen tussen een rijke maar saaie man en een charmante maar arme schrijver. Een vrolijke Londense chicklit.");
+B("Grisham, John","Achter gesloten deuren","The Pelican Brief","",0,"Thriller",1992,"Een rechtenstudente schrijft een theorie over de moord op twee rechters van het Hooggerechtshof. Als haar stuk de verkeerde mensen bereikt, moet ze vluchten voor haar leven.");
+B("Grisham, John","De bekentenis","The Confession","",0,"Thriller",2010,"Een terminaal zieke man bekent een moord waarvoor een onschuldige jongeman ter dood is veroordeeld. Een dominee probeert de executie te stoppen.");
+B("Grisham, John","Het proces","The Litigators","",0,"Thriller",2011,"Een jonge advocaat stapt uit een groot kantoor en belandt bij een louche advocatenkantoor in Chicago, dat een grote zaak tegen een farmaceut begint.");
+})(function (a, t, o, s, n, g, j, z, m) { window.BOEKEN.push({ a, t, o, s, n, g, j, z, m: m || "" }); });
