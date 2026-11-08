@@ -64,7 +64,7 @@ function getCover(b) {
   const own = (store.covers || {})[b.id];                      // zelf toegevoegd of geplakt
   if (own) return Promise.resolve(own);
   const fixed = (window.COVERS || {})[b.a + "|" + b.t];        // vooraf opgezocht via Open Library
-  if (fixed) return Promise.resolve(olCover(fixed));
+  if (fixed) return Promise.resolve(typeof fixed === "number" ? olCover(fixed) : fixed);
   const cid = b.cid || (bibInfo(b) || {}).c;
   if (cid) return Promise.resolve(olCover(cid));
   const k = ckey(b), c = covers[k];
@@ -83,18 +83,11 @@ function pump() {
     });
   }
 }
-let gbPauseUntil = 0;
-async function gb(q) {
-  if (Date.now() < gbPauseUntil) throw new Error("gb pauze");
-  const r = await fetch("https://www.googleapis.com/books/v1/volumes?maxResults=5&printType=books&q=" + encodeURIComponent(q));
-  if (r.status === 429) gbPauseUntil = Date.now() + 60000;
-  if (!r.ok) throw new Error("gb " + r.status);
-  const j = await r.json();
-  for (const it of j.items || []) {
-    const im = it.volumeInfo && it.volumeInfo.imageLinks;
-    if (im && (im.thumbnail || im.smallThumbnail)) return (im.thumbnail || im.smallThumbnail).replace(/^http:/, "https:").replace("&edge=curl", "");
-  }
-  return "";
+async function apple(title, ln, country) {                    // Apple Books: goede bron voor Nederlandse edities
+  const r = await fetch(`https://itunes.apple.com/search?media=ebook&limit=15&country=${country}&term=` + encodeURIComponent(title + " " + ln));
+  if (!r.ok) throw new Error("apple " + r.status);
+  const want = tkey(title), nl = norm(ln), hit = ((await r.json()).results || []).find(x => norm(x.artistName).includes(nl) && (tkey(x.trackName) === want || tkey(String(x.trackName).replace(/\s*[:(].*$/, "")) === want));
+  return hit ? hit.artworkUrl100.replace("100x100bb", "400x600bb") : "";
 }
 async function ol(title, author) {
   const r = await fetch("https://openlibrary.org/search.json?limit=5&fields=cover_i&title=" + encodeURIComponent(title) + "&author=" + encodeURIComponent(author));
@@ -106,8 +99,8 @@ async function ol(title, author) {
 async function findCover(b) {
   const ln = lastName(b.a).replace(/&.*/, "").trim(), t = b.t.replace(/\(.*?\)/g, "").replace(/^.*? \d+ - /, "").trim();
   let u = "", failed = 0;
-  const tries = [() => gb(`intitle:"${t}" inauthor:${ln}`)];
-  if (b.o && b.o !== "-" && norm(b.o) !== norm(t)) tries.push(() => gb(`intitle:"${b.o}" inauthor:${ln}`));
+  const tries = [() => apple(t, ln, "NL")];
+  if (b.o && b.o !== "-" && norm(b.o) !== norm(t)) tries.push(() => apple(b.o, ln, "US"));
   tries.push(() => ol(t, ln));
   if (b.o && b.o !== "-") tries.push(() => ol(b.o, ln));
   for (const f of tries) { try { u = await f(); if (u) return u; } catch (e) { failed++; } }
@@ -330,7 +323,9 @@ function coverSheet(hasOwn, apply) {
   s.innerHTML = `<div class="in"><div class="grab"></div>
     <p style="margin:4px 6px 8px;font:600 19px var(--f-d)">Omslag toevoegen</p>
     <button class="it" data-k="file"><span style="font-size:20px">🖼</span><span>Foto of afbeelding kiezen<small>Uit je galerij of bestanden, of maak een foto van het boek</small></span></button>
-    <button class="it" data-k="paste"><span style="font-size:20px">📋</span><span>Plakken<small>Een gekopieerde afbeelding of webadres. Op de computer kan ook Ctrl+V</small></span></button>
+    <div class="fld" style="margin:12px 6px 4px"><label for="pz">Plakken op iPad of telefoon: tik in dit vak, tik nog een keer en kies ‘Plakken’</label>
+      <div class="pastezone" id="pz" contenteditable="true" role="textbox" aria-label="Plak hier een afbeelding" autocapitalize="off" autocorrect="off" spellcheck="false" data-ph="Plak hier je afbeelding"></div></div>
+    <button class="it" data-k="paste"><span style="font-size:20px">📋</span><span>Plakken met één tik<small>Werkt op de computer en de meeste Android-telefoons. Op de computer kan ook Ctrl+V</small></span></button>
     <div class="fld" style="margin:12px 6px 4px"><label for="covUrl">Of plak hier het webadres van een afbeelding</label><div style="display:flex;gap:8px"><input id="covUrl" type="url" placeholder="https://…" autocomplete="off"><button class="btn" data-k="url" style="flex:none">Gebruik</button></div></div>
     ${hasOwn ? `<button class="it" data-k="del"><span style="font-size:20px">×</span><span>Eigen omslag verwijderen</span></button>` : ""}
     <button class="it" data-k="x"><span style="font-size:20px">←</span><span>Annuleren</span></button></div>`;
@@ -344,20 +339,38 @@ function coverSheet(hasOwn, apply) {
       if (!/^https?:\/\//i.test(v)) { toast("Dat is geen geldig webadres"); return; }
       s.remove(); apply(v); return;
     }
-    s.remove();
+    if (k !== "paste") s.remove();
     if (k === "del") apply(null);
     if (k === "file") { const f = document.createElement("input"); f.type = "file"; f.accept = "image/*"; f.onchange = () => { if (f.files[0]) use(f.files[0]); }; f.click(); }
     if (k === "paste") {
       try {
         for (const item of await navigator.clipboard.read()) {
           const ty = item.types.find(t => t.startsWith("image/"));
-          if (ty) { use(await item.getType(ty)); return; }
-          if (item.types.includes("text/plain")) { const tx = (await (await item.getType("text/plain")).text()).trim(); if (/^https?:\/\//i.test(tx)) { apply(tx); return; } }
+          if (ty) { s.remove(); use(await item.getType(ty)); return; }
+          if (item.types.includes("text/plain")) { const tx = (await (await item.getType("text/plain")).text()).trim(); if (/^https?:\/\//i.test(tx)) { s.remove(); apply(tx); return; } }
         }
         toast("Er staat geen afbeelding op het klembord");
-      } catch (err) { toast("Plakken lukt hier niet. Probeer Ctrl+V of kies een afbeelding"); }
+      } catch (err) { toast("Dit lukt hier niet. Tik in het vak hierboven en kies ‘Plakken’"); }
     }
   });
+  /* iPad/iPhone: plakken kan daar alleen betrouwbaar in een invoervak, via het systeemmenu */
+  const pz = s.querySelector("#pz");
+  const fromImg = img => {
+    const src = img.getAttribute("src") || ""; pz.innerHTML = "";
+    if (/^https?:/i.test(src)) { s.remove(); apply(src); return; }
+    fetch(src).then(r => r.blob()).then(b => { s.remove(); use(b); }).catch(() => toast("Deze afbeelding kan niet geplakt worden. Bewaar hem en kies ‘Foto of afbeelding kiezen’"));
+  };
+  pz.addEventListener("paste", e => {
+    e.stopPropagation();
+    const cd = e.clipboardData;
+    let file = cd && [...(cd.files || [])].find(f => f.type.startsWith("image/"));
+    if (!file && cd) { const it = [...(cd.items || [])].find(i => i.kind === "file" && i.type.startsWith("image/")); if (it) file = it.getAsFile(); }
+    if (file) { e.preventDefault(); s.remove(); use(file); return; }
+    const tx = cd ? (cd.getData("text/plain") || "").trim() : "";
+    if (/^https?:\/\//i.test(tx)) { e.preventDefault(); s.remove(); apply(tx); return; }
+    setTimeout(() => { const img = pz.querySelector("img"); if (img) fromImg(img); else { pz.innerHTML = ""; toast("Er staat geen afbeelding op het klembord"); } }, 80);
+  });
+  pz.addEventListener("input", () => { const img = pz.querySelector("img"); if (img) fromImg(img); });
   document.body.appendChild(s);
 }
 document.addEventListener("paste", e => {                       // Ctrl+V op de boekpagina of in het formulier
@@ -456,10 +469,17 @@ function renderAuthor(a) {
       ${nOther ? `<div class="legend"><span><i style="background:var(--acc2)"></i>Gelezen (${read})</span><span><i style="border:2px solid var(--faint)"></i>Nog niet gelezen (${nOther})</span>${bs.length > read ? `<span><i style="background:var(--gold)"></i>Wensenlijst</span>` : ""}</div>
       <div class="chips" style="padding-top:2px"><button class="chip" data-f="alle" aria-pressed="${authorFilter === "alle"}">Alle boeken</button><button class="chip" data-f="gel" aria-pressed="${authorFilter === "gel"}">Alleen gelezen</button></div>` : ""}
       <ul class="tl">${shown.map((r, i) => r.b ? `<li class="read"><a href="#/boek/${r.b.id}"><span class="y">${r.y || "?"}</span><span class="dot"></span><span class="th">${coverHTML(r.b)}</span><span class="tt"><b>${esc(r.b.t)}</b>${subHTML(r.b, "")}</span>${r.b.w ? `<span class="ok w">Wens</span>` : `<span class="ok">✓ Gelezen</span>`}</a></li>`
-        : `<li class="unread"><button class="nr" data-i="${rows.indexOf(r)}"><span class="y">${r.y || "?"}</span><span class="dot"></span>${r.c ? `<span class="th"><img loading="lazy" alt="" referrerpolicy="no-referrer" src="${olCover(r.c, "S")}"></span>` : `<span class="ph2">+</span>`}<span class="tt"><b>${esc(r.title)}</b><small>Tik voor meer informatie</small></span><span class="add">Gelezen?</span></button></li>`).join("")}</ul>
+        : `<li class="unread"><button class="nr" data-i="${rows.indexOf(r)}"><span class="y">${r.y || "?"}</span><span class="dot"></span>${r.c ? `<span class="th"><img loading="lazy" alt="" referrerpolicy="no-referrer" src="${olCover(r.c, "S")}"></span>` : `<span class="ph2" data-find="${rows.indexOf(r)}">+</span>`}<span class="tt"><b>${esc(r.title)}</b><small>Tik voor meer informatie</small></span><span class="add">Gelezen?</span></button></li>`).join("")}</ul>
       ${hasBib ? `<p class="src">De niet-gelezen boeken komen van Open Library. De lijst kan onvolledig zijn of verzamelbundels bevatten. Tik op een titel voor de beschrijving, of om hem als gelezen of als wens toe te voegen.</p>` : ""}</div>`;
   hydrate($("#sBody"));
   loadWiki(a, $("#wikiBox"));
+  $("#sBody").querySelectorAll("[data-find]").forEach(el => {     // ongelezen boeken zonder omslag: alsnog opzoeken
+    const r = rows[+el.dataset.find];
+    getCover({ a, t: r.title, o: r.title }).then(u => {
+      if (!u || !el.isConnected) return;
+      r.u = u; const th = document.createElement("span"); th.className = "th"; th.innerHTML = `<img alt="" referrerpolicy="no-referrer" src="${esc(u)}">`; el.replaceWith(th);
+    });
+  });
   $("#sBody").querySelectorAll(".chip[data-f]").forEach(c => c.onclick = () => { authorFilter = c.dataset.f; renderAuthor(a); });
   $("#sBody").querySelectorAll("button.nr").forEach(btn => btn.onclick = () => askAdd(a, rows[+btn.dataset.i]));
   $("#sEdit").onclick = () => {
@@ -571,7 +591,7 @@ $("#fDel").onclick = () => {
 
 /* ---------- Menu: backup, thema, omslagen ---------- */
 function toast(m) { const t = $("#toast"); t.textContent = m; t.classList.add("on"); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove("on"), 2200); }
-const APP = { versie: "1.2", datum: "8 november 2026" };   // bij elke update aanpassen
+const APP = { versie: "1.3", datum: "8 november 2026" };   // bij elke update aanpassen
 const SUN = '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
   MOON = '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>';
 const isDark = () => { const t = lsGet("pb-theme", "auto"); return t === "dark" || (t === "auto" && matchMedia("(prefers-color-scheme: dark)").matches); };
