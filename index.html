@@ -47,7 +47,9 @@ a{color:inherit}
 .hand{display:block;font:700 clamp(40px,11vw,64px)/.8 "Caveat",cursive;color:var(--acc);transform:rotate(-4deg) translateX(-18%);margin-bottom:-.12em;position:relative;z-index:1}
 .big{display:block;font:800 clamp(46px,14vw,92px)/.92 var(--f-d);letter-spacing:-.035em;font-variation-settings:"SOFT" 100,"WONK" 1}
 .big em{font-style:italic;font-weight:400;color:var(--acc)}
-.lelie{display:inline-block;fill:currentColor;color:var(--acc);overflow:visible}
+.lelie{display:inline-block;fill:currentColor;color:#000;overflow:visible}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .lelie{color:#fff}}
+:root[data-theme="dark"] .lelie{color:#fff}
 .big .lelie{width:.46em;height:.56em;margin-left:.1em;vertical-align:.06em}
 .bar h2 .lelie{width:.8em;height:.98em;margin-left:.25em;vertical-align:-.12em}
 .about .lelie{width:15px;height:18px;margin-left:6px;vertical-align:-3px}

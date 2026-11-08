@@ -15,7 +15,29 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 const ALIAS = { "Preston & Child": ["Douglas Preston", "Lincoln Child"], "Börjlind, Cilla & Rolf": ["Börjlind"], "Koontz, Dean R.": ["Dean Koontz"], "Andrews, Virginia": ["V.C. Andrews"], "Lescroart, John T.": ["John Lescroart"], "Sasson, Jean P.": ["Jean Sasson"] };
 const SKIP = new Set(["Brink, Noortje", "Craig, Robert", "Lucas, John", "Lathrop, John"]);
-const BAD = /\b(box ?set|bundel|bundle|omnibus|collection|sampler|samenvatting|summary|boxset|\d+-book|trilogie compleet)\b/i;
+const BAD = /\b(box ?set|bundel|bundle|omnibus|collection|sampler|samenvatting|summary|boxset|\d+-book|trilogie compleet|coming 20\d\d)\b/i;
+const BAD_GENRE = /comic|graphic|strip|travel|reis/i;
+// Apple geeft geen taal mee: die leiden we af uit de beschrijving. Alleen Nederlandse en Engelse uitgaven blijven over.
+const WOORDEN = {
+  nl: /\b(de|het|een|en|van|zijn|naar|voor|haar|niet|wordt)\b/g, en: /\b(the|and|of|to|her|his|with|for|that|she)\b/g,
+  de: /\b(der|die|das|und|nicht|ein|eine|sie|mit|auf|ist)\b/g, es: /\b(el|la|los|las|una|del|que|por|con|su)\b/g,
+  it: /\b(il|che|della|per|una|gli|con|non|di|lei)\b/g, fr: /\b(le|les|des|une|et|dans|pour|qui|est|elle)\b/g,
+  sv: /\b(och|att|det|som|för|med|hon|han|av|är)\b/g, no: /\b(og|ikke|hun|han|med|som|til|av|det)\b/g
+};
+function taal(x) {
+  const t = plain(String(x.description || "").replace(/<[^>]+>/g, " "));
+  if (t.length < 40) return "?";
+  let best = "?", max = 0;
+  for (const [k, re] of Object.entries(WOORDEN)) { const n = (t.match(re) || []).length; if (n > max) { max = n; best = k; } }
+  return best;
+}
+// Naamgenoten: houd alleen de Apple-auteur(s) aan waar de meeste boeken onder staan
+function hoofdAuteurs(lijst) {
+  const tel = new Map();
+  for (const x of lijst) for (const id of x.artistIds || []) tel.set(id, (tel.get(id) || 0) + 1);
+  const top = Math.max(0, ...tel.values());
+  return new Set([...tel].filter(([, n]) => n >= Math.max(2, top * .25)).map(([id]) => id));
+}
 
 const authors = [...new Set([...window.BOEKEN.map(b => b.a.trim()), ...window.WENSEN.map(w => w[0].trim())])].filter(a => !SKIP.has(a));
 const today = new Date().toISOString().slice(0, 10);
@@ -42,9 +64,13 @@ for (const a of authors) {
     const toks = plain(name).replace(/[^a-z ]/g, " ").split(/\s+/).filter(w => w.length > 2 && !["van", "der", "den"].includes(w));
     const res = await search(name);
     if (!res) { failed++; console.log("MISLUKT " + a); continue; }
-    for (const x of res) {
-      const d = String(x.releaseDate || "").slice(0, 10), artist = plain(x.artistName);
-      if (d <= today || d > horizon || BAD.test(x.trackName) || !toks.every(t => artist.includes(t))) continue;
+    const vanSchrijver = res.filter(x => { const artist = plain(x.artistName); return toks.every(t => artist.includes(t)); });
+    const hoofd = hoofdAuteurs(vanSchrijver);
+    for (const x of vanSchrijver) {
+      const d = String(x.releaseDate || "").slice(0, 10);
+      if (d <= today || d > horizon || BAD.test(x.trackName) || BAD_GENRE.test((x.genres || []).join(" "))) continue;
+      if (hoofd.size && !(x.artistIds || []).some(id => hoofd.has(id))) continue;
+      if (!["nl", "en", "?"].includes(taal(x))) continue;
       const k = a + "|" + tkey(x.trackName);
       if (!found.has(k)) { found.set(k, { a, t: x.trackName, d, c: x.artworkUrl100.replace("100x100bb", "400x600bb"), u: x.trackViewUrl }); console.log(`${d}  ${name}: ${x.trackName}`); }
     }
