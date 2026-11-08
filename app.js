@@ -717,7 +717,7 @@ $("#fDel").onclick = () => {
 
 /* ---------- Menu: backup, thema, omslagen ---------- */
 function toast(m) { const t = $("#toast"); t.textContent = m; t.classList.add("on"); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove("on"), 2200); }
-const APP = { versie: "1.8", datum: "8 november 2026" };   // bij elke update aanpassen
+const APP = { versie: "1.9", datum: "8 november 2026" };   // bij elke update aanpassen
 const SUN = '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
   MOON = '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>';
 const isDark = () => { const t = lsGet("pb-theme", "auto"); return t === "dark" || (t === "auto" && matchMedia("(prefers-color-scheme: dark)").matches); };
@@ -884,7 +884,7 @@ function openSync() {
        <button class="it" data-s="copy"><span style="font-size:20px">🔗</span><span>Koppelcode kopiëren<small>Plak die op je andere apparaat. Deel de code met niemand anders.</small></span></button>
        <button class="it" data-s="off"><span style="font-size:20px">×</span><span>Ontkoppelen<small>Je gegevens op dit apparaat blijven gewoon staan</small></span></button>`
     : `<p style="margin:0 6px 10px;color:var(--muted);font-size:14px">Houd memo's, nieuwe boeken, wijzigingen en eigen omslagen gelijk op telefoon, iPad en computer. Dit werkt met een <b>privé</b>-repository op GitHub, net als je concert-app.</p>
-       <div class="fld" style="margin:0 6px 8px"><label for="syncCode">Koppelcode: eigenaar/repository/token</label><input id="syncCode" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="eigenaar/repository/github_pat_…"></div>
+       <div class="fld" style="margin:0 6px 8px"><label for="syncCode">Koppelcode of token</label><input id="syncCode" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Plak hier je code (github_pat_…)"></div>
        <p class="src" id="syncSt" style="margin:0 6px 8px"></p>
        <div class="acts" style="margin:8px 6px"><button class="btn pri" data-s="link">Koppelen</button></div>`;
   s.innerHTML = `<div class="in"><div class="grab"></div><p style="margin:4px 6px 10px;font:600 19px var(--f-d)">Synchroniseren</p>${body}<button class="it" data-s="x"><span style="font-size:20px">←</span><span>Sluiten</span></button></div>`;
@@ -896,17 +896,21 @@ function openSync() {
     if (k === "copy") { try { await navigator.clipboard.writeText(`${syncCfg.owner}/${syncCfg.repo}/${syncCfg.token}`); toast("Koppelcode gekopieerd"); } catch (err) { toast("Kopiëren lukt hier niet"); } }
     if (k === "off" && confirm("Dit apparaat ontkoppelen?")) { syncCfg = null; localStorage.removeItem(SYNC_KEY); s.remove(); toast("Ontkoppeld"); }
     if (k === "link") {
-      const p = $("#syncCode").value.trim().split("/"), st = $("#syncSt");
-      if (p.length !== 3 || !p[0] || !p[1] || !p[2]) { st.textContent = "Vul de code in als eigenaar/repository/token"; return; }
+      const st = $("#syncSt"), knop = s.querySelector('[data-s="link"]');
+      const zeg = m => { st.textContent = m; toast(m); knop.textContent = "Koppelen"; knop.disabled = false; };
+      let code = $("#syncCode").value.replace(/[\s​-‍﻿]/g, "").replace(/^https?:\/\/github\.com\//i, "");
+      if (/^(github_pat_|ghp_)/.test(code)) code = "bzwijgers/boekenkast-sync/" + code;      // alleen de token geplakt: ook goed
+      const p = code.split("/");
+      if (p.length !== 3 || !p[0] || !p[1] || !p[2]) { zeg("Plak de code die begint met github_pat_ of ghp_"); return; }
       const cfg = { owner: p[0], repo: p[1], token: p[2] };
-      st.textContent = "Bezig met controleren…";
+      st.textContent = "Bezig met controleren…"; knop.textContent = "Bezig…"; knop.disabled = true;
       try {
         const r = await ghFetch(cfg, "");
-        if (!r.ok) { st.textContent = r.status === 404 || r.status === 401 ? "Repository niet gevonden of token klopt niet" : "GitHub gaf fout " + r.status; return; }
+        if (!r.ok) { zeg(r.status === 401 ? "GitHub herkent deze code niet. Kopieer hem nog eens helemaal." : r.status === 404 ? "Repository niet gevonden. Heeft de token toegang tot " + p[1] + "?" : r.status === 403 ? "GitHub weigert de toegang (403). Controleer de rechten van de token." : "GitHub gaf fout " + r.status); return; }
         const j = await r.json();
-        if (!j.private) { st.textContent = "Deze repository is openbaar. Kies een privé-repository, anders kan iedereen je memo's en de code lezen."; return; }
+        if (!j.private) { zeg("Deze repository is openbaar. Kies een privé-repository, anders kan iedereen je memo's en de code lezen."); return; }
         syncCfg = cfg; lsSet(SYNC_KEY, cfg); s.remove(); toast("Gekoppeld"); syncNow(true);
-      } catch (err) { st.textContent = "Geen verbinding met GitHub"; }
+      } catch (err) { zeg("Geen verbinding met GitHub. Probeer het nog eens."); }
     }
   });
   document.body.appendChild(s);
