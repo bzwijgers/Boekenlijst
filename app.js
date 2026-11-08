@@ -13,7 +13,7 @@ function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return 
 
 /* ---------- Gegevens ---------- */
 const STORE_KEY = "pb-data";
-let store = Object.assign({ edits: {}, added: [], deleted: [], bios: {}, covers: {} }, lsGet(STORE_KEY, {}));
+let store = Object.assign({ edits: {}, added: [], deleted: [], bios: {}, covers: {}, unread: {} }, lsGet(STORE_KEY, {}));
 const saveStore = () => { const ok = lsSet(STORE_KEY, store); if (ok) syncChanged(); return ok; };
 
 const BASE = [];
@@ -141,6 +141,7 @@ function route() {
   if (p === "lijst") { show("lijst"); renderList(); requestAnimationFrame(() => window.scrollTo(0, listScroll)); }
   else if (p === "boek" && BYID.has(arg)) { show("boek"); renderBook(BYID.get(arg)); window.scrollTo(0, 0); }
   else if (p === "schrijver" && arg) { show("schrijver"); renderAuthor(arg); const y = arg === lastAuthor ? authorScroll : 0; lastAuthor = arg; requestAnimationFrame(() => window.scrollTo(0, y)); }
+  else if (p === "bewerk-titel" && arg.includes("|")) { const i = arg.indexOf("|"), bk = unreadAsBook(arg.slice(0, i), arg.slice(i + 1)); if (bk) { show("nieuw"); renderForm(bk); window.scrollTo(0, 0); } else { show("start"); renderStart(); } }
   else if (p === "titel" && arg.includes("|")) { const i = arg.indexOf("|"); show("boek"); renderUnread(arg.slice(0, i), arg.slice(i + 1)); window.scrollTo(0, 0); }
   else if (p === "nieuw") { show("nieuw"); renderForm(null); window.scrollTo(0, 0); }
   else if (p === "bewerk" && BYID.has(arg)) { show("nieuw"); renderForm(BYID.get(arg)); window.scrollTo(0, 0); }
@@ -569,8 +570,15 @@ function authorTimeline(a) {
     const ex = rows.find(r => !r.b && tkey(r.title) === tkey(n.t));
     if (ex) ex.soon = n.d; else rows.push({ title: n.t, y: +n.d.slice(0, 4), c: n.c, wk: "", soon: n.d });
   });
+  rows.forEach(r => {                                            // eigen aanpassingen aan ongelezen boeken
+    if (r.b) return;
+    r.key = ukey(a, r.title); r.ov = store.unread[r.key] || {};
+    r.cv = store.covers["t|" + r.key] || r.c;
+    if (r.ov.j) r.y = r.ov.j;
+  });
   return rows.sort((x, y) => (x.y || 9999) - (y.y || 9999) || ((x.b && x.b.n) || 0) - ((y.b && y.b.n) || 0));
 }
+const ukey = (a, t) => a + "|" + tkey(t);
 function renderAuthor(a) {
   const bs = BOOKS.filter(b => b.a === a);
   const nm = niceName(a), read = bs.filter(b => !b.w).length;
@@ -588,7 +596,7 @@ function renderAuthor(a) {
       ${nOther ? `<div class="legend"><span><i style="background:var(--acc2)"></i>Gelezen (${read})</span><span><i style="border:2px solid var(--faint)"></i>Nog niet gelezen (${nOther})</span>${bs.length > read ? `<span><i style="background:var(--gold)"></i>Wensenlijst</span>` : ""}</div>
       <div class="chips" style="padding-top:2px"><button class="chip" data-f="alle" aria-pressed="${authorFilter === "alle"}">Alle boeken</button><button class="chip" data-f="gel" aria-pressed="${authorFilter === "gel"}">Alleen gelezen</button></div>` : ""}
       <ul class="tl">${shown.map((r, i) => r.b ? `<li class="read"><a href="#/boek/${r.b.id}"><span class="y">${r.y || "?"}</span><span class="dot"></span><span class="th">${coverHTML(r.b)}</span><span class="tt"><b>${esc(r.b.t)}</b>${subHTML(r.b, "")}</span>${r.b.w ? `<span class="ok w">Wens</span>` : `<span class="ok">✓ Gelezen</span>`}</a></li>`
-        : `<li class="unread"><a href="#/titel/${encodeURIComponent(a + "|" + r.title)}"><span class="y">${r.y || "?"}</span><span class="dot"></span>${r.c ? `<span class="th"><img loading="lazy" alt="" referrerpolicy="no-referrer" src="${olCover(r.c, "S")}"></span>` : `<span class="ph2" data-find="${rows.indexOf(r)}">+</span>`}<span class="tt"><b>${esc(r.title)}</b>${r.soon && r.soon > todayISO() ? `<small>Verschijnt ${nlDate(r.soon)}</small>` : ""}</span></a></li>`).join("")}</ul>
+        : `<li class="unread"><a href="#/titel/${encodeURIComponent(a + "|" + r.title)}"><span class="y">${r.y || "?"}</span><span class="dot"></span>${r.cv ? `<span class="th"><img loading="lazy" alt="" referrerpolicy="no-referrer" src="${esc(olCover(r.cv, "S"))}"></span>` : `<span class="ph2" data-find="${rows.indexOf(r)}">+</span>`}<span class="tt"><b>${esc(r.ov.t || r.title)}</b>${subHTML({ t: r.ov.t || r.title, o: r.ov.o, s: r.ov.s, n: r.ov.n }, "")}${r.soon && r.soon > todayISO() ? `<small>Verschijnt ${nlDate(r.soon)}</small>` : ""}</span></a></li>`).join("")}</ul>
       ${hasBib ? `<p class="src">De niet-gelezen boeken komen uit openbare boekencatalogi. De lijst kan onvolledig zijn of verzamelbundels bevatten. Tik op een titel voor de samenvatting, of om hem als gelezen of als wens toe te voegen.</p>` : ""}</div>`;
   hydrate($("#sBody"));
   loadWiki(a, $("#wikiBox"));
@@ -612,16 +620,25 @@ function renderUnread(a, title) {
   const r = authorTimeline(a).find(x => !x.b && tkey(x.title) === tkey(title));
   if (!r) { history.replaceState(null, "", "#/schrijver/" + encodeURIComponent(a)); route(); return; }
   lastBook = null;
-  const pseudo = { id: "", a, t: r.title, o: "", g: "", cid: r.c || 0 };
-  $("#bBar").textContent = r.title;
-  $("#bEdit").classList.add("hidden");
+  const ov = r.ov, shown = ov.t || r.title, covId = "t|" + r.key;
+  const pseudo = { id: covId, a, t: shown, o: "", g: ov.g || "", cid: r.c || 0 }, boekje = { t: shown, o: ov.o, s: ov.s, n: ov.n };
+  $("#bBar").textContent = shown;
+  $("#bEdit").href = "#/bewerk-titel/" + encodeURIComponent(a + "|" + r.title); $("#bEdit").classList.remove("hidden");
   $("#bBody").innerHTML = `
     <div class="top"><div class="big">${coverHTML(pseudo)}</div>
-      <div><h1>${esc(r.title)}</h1>
+      <div><h1>${esc(shown)}</h1>${enTitle(boekje) ? `<p class="orig">${esc(enTitle(boekje))}</p>` : ""}${hasSeries(boekje) ? `<div class="tt" style="margin:-4px 0 8px"><span class="ser">${esc(seriesLabel(boekje))}</span></div>` : ""}
       <a class="by" href="#/schrijver/${encodeURIComponent(a)}">${esc(niceName(a))}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></a></div></div>
-    <div class="facts">${r.soon && r.soon > todayISO() ? `<div class="fact"><small>Verschijnt</small><span>${esc(nlDate(r.soon))}</span></div><div class="fact"><small>Status</small><span>Aangekondigd</span></div>` : `<div class="fact"><small>Verschenen</small><span>${r.y || "onbekend"}</span></div><div class="fact"><small>Status</small><span>Nog niet gelezen</span></div>`}</div>
-    <div class="sec"><h3>Samenvatting</h3><div id="descBox"><p class="none">Samenvatting zoeken…</p></div></div>
-    <div class="acts"><button class="btn pri" id="uGel">✓ Gelezen</button><button class="btn" id="uWens">♡ Op de wensenlijst</button></div>`;
+    <div class="facts">${r.soon && r.soon > todayISO() ? `<div class="fact"><small>Verschijnt</small><span>${esc(nlDate(r.soon))}</span></div><div class="fact"><small>Status</small><span>Aangekondigd</span></div>` : `<div class="fact"><small>Verschenen</small><span>${r.y || "onbekend"}</span></div><div class="fact"><small>Status</small><span>Nog niet gelezen</span></div>`}${ov.g ? `<div class="fact"><small>Soort boek</small><span>${esc(ov.g)}</span></div>` : ""}</div>
+    ${ov.z ? `<div class="sec"><h3>Samenvatting</h3><p>${esc(ov.z)}</p></div>` : ""}
+    <div class="sec" id="descSec"><h3>${ov.z ? "Meer over dit boek" : "Samenvatting"}</h3><div id="descBox"><p class="none">Samenvatting zoeken…</p></div></div>
+    <div class="sec"><h3>Memo</h3><textarea class="memo" id="memo" placeholder="Eigen aantekeningen: tip van iemand, waarom je dit wilt lezen…">${esc(ov.memo || "")}</textarea><div class="saved" id="saved"></div></div>
+    <div class="acts"><button class="btn pri" id="uGel">✓ Gelezen</button><button class="btn" id="uWens">♡ Op de wensenlijst</button><button class="btn" id="covBtn">Omslag toevoegen of plakken</button><a class="btn" href="#/bewerk-titel/${encodeURIComponent(a + "|" + r.title)}">Bewerken</a></div>`;
+  let memoT = 0;
+  $("#memo").addEventListener("input", e => {
+    clearTimeout(memoT); $("#saved").textContent = "";
+    memoT = setTimeout(() => { store.unread[r.key] = Object.assign(store.unread[r.key] || {}, { memo: e.target.value }); saveStore(); $("#saved").textContent = "✓ Opgeslagen"; }, 500);
+  });
+  $("#covBtn").onclick = () => coverSheet(!!store.covers[covId], u => { if (setCover(covId, u)) renderUnread(a, title); });
   const el = $("#bBody .cov");
   getCover(pseudo).then(u => {
     if (!u || !el.isConnected) return;
@@ -630,7 +647,8 @@ function renderUnread(a, title) {
   loadSummary({ a, t: r.title, o: "", wk: r.wk }, $("#descBox"));
   const add = w => {
     const id = "u" + Date.now().toString(36);
-    store.added.push({ id, a, t: r.title, o: r.title, s: "", n: 0, g: "", j: r.y || 0, z: "", memo: "", w, cid: r.c || 0, wk: r.wk || "" });
+    store.added.push(unreadToBook(id, a, r, w));
+    moveUnread(r.key, id);
     saveStore(); rebuild(); openSet.add(a); lsSet("pb-open", [...openSet]);
     if (w) { toast("Op de wensenlijst gezet"); history.replaceState(null, "", "#/boek/" + id); }
     else { fillHint = true; history.replaceState(null, "", "#/bewerk/" + id); }
@@ -638,6 +656,15 @@ function renderUnread(a, title) {
   };
   $("#uGel").onclick = () => add(false);
   $("#uWens").onclick = () => add(true);
+}
+
+/* Aanpassingen gaan mee zodra een ongelezen boek gelezen of een wens wordt */
+function unreadToBook(id, a, r, w) { const ov = r.ov || {}; return { id, a, t: ov.t || r.title, o: ov.o ?? r.title, s: ov.s || "", n: ov.n || 0, g: ov.g || "", j: ov.j || r.y || 0, z: ov.z || "", memo: ov.memo || "", w, cid: r.c || 0, wk: r.wk || "" }; }
+function moveUnread(key, id) { const c = store.covers["t|" + key]; if (c) { store.covers[id] = c; delete store.covers["t|" + key]; } delete store.unread[key]; }
+function unreadAsBook(a, title) {
+  const r = authorTimeline(a).find(x => !x.b && tkey(x.title) === tkey(title)); if (!r) return null;
+  const ov = r.ov;
+  return { id: "t|" + r.key, unk: r.key, row: r, a, t: ov.t || r.title, o: ov.o ?? r.title, s: ov.s || "", n: ov.n || 0, g: ov.g || "", j: ov.j || r.y || 0, z: ov.z || "", memo: ov.memo || "", w: false, cid: r.c || 0 };
 }
 
 /* ---------- Toevoegen / bewerken ---------- */
@@ -677,14 +704,16 @@ $("#fCovBtn").onclick = () => coverSheet(!!pendingCover || !!(editing && store.c
 function renderForm(b) {
   editing = b;
   pendingCover = undefined;
-  $("#fCov").innerHTML = b ? coverHTML(b) : ""; if (b) hydrate($("#fCov"));
+  $("#fCov").innerHTML = b && !b.unk ? coverHTML(b) : ""; if (b && !b.unk) hydrate($("#fCov"));
+  if (b && b.unk) getCover(b).then(u => { if (u && editing === b && pendingCover === undefined) $("#fCov").innerHTML = `<img alt="" referrerpolicy="no-referrer" src="${esc(u)}">`; });
+  $("#fA").disabled = !!(b && b.unk);
   $("#fTitle").textContent = b ? (fillHint ? "Boek aanvullen" : "Boek bewerken") : "Boek toevoegen";
   $("#dlS").innerHTML = [...new Set(BOOKS.map(x => x.s).filter(s => s && s !== "-"))].sort().map(s => `<option value="${esc(s)}">`).join("");
   $("#dlG").innerHTML = [...new Set(BOOKS.map(x => x.g).filter(Boolean))].sort().map(s => `<option value="${esc(s)}">`).join("");
   const v = b || { a: "", t: "", o: "", s: "", n: "", g: "", j: "", z: "", memo: "", w: tab === "wens" };
   $("#fA").value = v.a; $("#fT").value = v.t; $("#fO").value = v.o && v.o !== "-" ? v.o : ""; $("#fS").value = v.s && v.s !== "-" ? v.s : "";
   $("#fN").value = v.n || ""; $("#fG").value = v.g || ""; $("#fJ").value = v.j || ""; $("#fZ").value = v.z || ""; $("#fM").value = v.memo || ""; $("#fW").checked = !!v.w;
-  $("#fDel").classList.toggle("hidden", !b);
+  $("#fDel").classList.toggle("hidden", !b || !!b.unk);
   $("#sgA").classList.add("hidden"); knownNote();
   if (!b) setTimeout(() => $("#fA").focus(), 50);
   if (fillHint) { fillHint = false; toast("Toegevoegd! Vul nu de Nederlandse titel en de rest aan"); setTimeout(() => { $("#fT").focus(); $("#fT").select(); }, 80); }
@@ -695,6 +724,19 @@ $("#form").addEventListener("submit", e => {
   if (!a || !t) return;
   const d = { a, t, o: $("#fO").value.trim(), s: $("#fS").value.trim(), n: +$("#fN").value || 0, g: $("#fG").value.trim(), j: +$("#fJ").value || 0, z: $("#fZ").value.trim(), memo: $("#fM").value, w: $("#fW").checked };
   let id;
+  if (editing && editing.unk) {                                 // nog niet gelezen boek
+    const key = editing.unk, ov = { t, o: d.o, s: d.s, n: d.n, g: d.g, j: d.j, z: d.z, memo: d.memo };
+    if (pendingCover !== undefined) setCover("t|" + key, pendingCover);
+    store.unread[key] = ov;
+    if (d.w) {                                                  // meteen op de wensenlijst gezet
+      id = "u" + Date.now().toString(36);
+      store.added.push(unreadToBook(id, a, Object.assign({}, editing.row, { ov }), true));
+      moveUnread(key, id); saveStore(); rebuild();
+      toast("Op de wensenlijst gezet"); history.replaceState(null, "", "#/boek/" + id); route(); return;
+    }
+    saveStore(); toast("Wijzigingen opgeslagen");
+    goBack(); return;
+  }
   if (editing) { id = editing.id; setField(id, d); toast("Wijzigingen opgeslagen"); }
   else {
     const dup = BOOKS.find(x => norm(x.a) === norm(a) && norm(x.t) === norm(t));
@@ -717,7 +759,7 @@ $("#fDel").onclick = () => {
 
 /* ---------- Menu: backup, thema, omslagen ---------- */
 function toast(m) { const t = $("#toast"); t.textContent = m; t.classList.add("on"); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove("on"), 2200); }
-const APP = { versie: "1.9", datum: "8 november 2026" };   // bij elke update aanpassen
+const APP = { versie: "2.0", datum: "8 november 2026" };   // bij elke update aanpassen
 const SUN = '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
   MOON = '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>';
 const isDark = () => { const t = lsGet("pb-theme", "auto"); return t === "dark" || (t === "auto" && matchMedia("(prefers-color-scheme: dark)").matches); };
@@ -789,7 +831,7 @@ $("#impFile").addEventListener("change", async e => {
     const j = JSON.parse(await f.text());
     if (j.app !== "petra-boekenlijst" || !j.data) throw new Error();
     if (!confirm("Backup van " + (j.datum || "").slice(0, 10) + " terugzetten? De huidige aanpassingen op dit apparaat worden vervangen.")) return;
-    store = Object.assign({ edits: {}, added: [], deleted: [], bios: {}, covers: {} }, j.data); saveStore(); rebuild(); route(); toast("Backup teruggezet");
+    store = Object.assign({ edits: {}, added: [], deleted: [], bios: {}, covers: {}, unread: {} }, j.data); saveStore(); rebuild(); route(); toast("Backup teruggezet");
   } catch (err) { alert("Dit is geen geldige backup van Peet's boekenkast."); }
 });
 
@@ -805,14 +847,15 @@ function flatStore(st) {
   (st.deleted || []).forEach(id => m["d|" + id] = "1");
   Object.entries(st.bios || {}).forEach(([k, v]) => m["b|" + k] = JSON.stringify(v));
   Object.entries(st.covers || {}).forEach(([k, v]) => m["c|" + k] = v);
+  Object.entries(st.unread || {}).forEach(([k, v]) => m["u|" + k] = JSON.stringify(v));
   return m;
 }
 function unflatStore(m) {
-  const st = { edits: {}, added: [], deleted: [], bios: {}, covers: {} };
+  const st = { edits: {}, added: [], deleted: [], bios: {}, covers: {}, unread: {} };
   Object.entries(m).forEach(([key, v]) => {
     const i = key.indexOf("|"), t = key.slice(0, i), k = key.slice(i + 1);
     if (t === "e") st.edits[k] = JSON.parse(v); else if (t === "a") st.added.push(JSON.parse(v)); else if (t === "d") st.deleted.push(k);
-    else if (t === "b") st.bios[k] = JSON.parse(v); else if (t === "c") st.covers[k] = v;
+    else if (t === "b") st.bios[k] = JSON.parse(v); else if (t === "c") st.covers[k] = v; else if (t === "u") st.unread[k] = JSON.parse(v);
   });
   return st;
 }
