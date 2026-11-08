@@ -20,7 +20,7 @@ window.SCHRIJVERS = {
 "Craig, Robert":"",
 "Deaver, Jeffery":"Amerikaanse thrillerschrijver (1950), voormalig journalist en advocaat. Bekend van de reeksen rond de verlamde criminalist Lincoln Rhyme en verhoorspecialiste Kathryn Dance.",
 "Diehl, William":"Amerikaanse schrijver en journalist (1924-2006). Zijn roman ‘Primal Fear’ werd een succesvolle film met Richard Gere en Edward Norton.",
-"Dieudonné, Paul":"Schrijver van de detectivereeks rond rechercheur De Klerck.",
+"Dieudonné, Paul":"Nederlandse schrijver en groot liefhebber van het werk van A.C. Baantjer. Hij schrijft de detectivereeks over de Rotterdamse rechercheur Lucien de Klerck en diens assistent Ruben Klaver, en schreef ook een boek over Baantjers rechercheur De Cock. Hij woont met zijn vrouw in Canada.",
 "Dijkzeul, Lieneke":"Nederlandse schrijfster (1950) van thrillers en jeugdboeken.",
 "Faye, Lyndsay":"Amerikaanse schrijfster (1980) van historische misdaadromans, waaronder de reeks over Timothy Wilde in het New York van de jaren 1840.",
 "Feist, Raymond E.":"Amerikaanse fantasyschrijver (1945), vooral bekend van de Riftwar-saga. ‘Faerie Tale’ is zijn enige horrorroman.",

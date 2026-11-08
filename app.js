@@ -54,7 +54,7 @@ const saveCovers = () => { clearTimeout(covSaveT); covSaveT = setTimeout(() => l
 const ckey = b => hash(norm(b.a) + "|" + norm(b.t));
 const pending = new Map(), queue = [];
 let active = 0;
-const olCover = (id, size) => "https://covers.openlibrary.org/b/id/" + id + "-" + (size || "M") + ".jpg";
+const olCover = (id, size) => typeof id === "string" ? id : "https://covers.openlibrary.org/b/id/" + id + "-" + (size || "M") + ".jpg";
 let BIBIDX = null;
 function bibInfo(b) {                                          // omslag en beschrijving-ID uit de bibliografie
   if (!BIBIDX) { BIBIDX = new Map(); Object.entries(window.BIBLIO || {}).forEach(([a, l]) => l.forEach(([t, y, c, k]) => { const key = a + "|" + tkey(t); if (!BIBIDX.has(key)) BIBIDX.set(key, { c, k }); })); }
@@ -213,7 +213,7 @@ const SERIES_TOTAL = {
   "Dollanganger": 5, "De Casteel Serie": 5, "Camel Club": 5, "Will Robie": 5, "Robert Langdon": 5, "Andy Brazil": 3,
   "Het Fluistereiland": 4, "Rizzoli & Isles": 13, "Miss": 3, "Jack Caffery": 7, "Cree Black": 2, "David Ash": 3, "De Ratten": 4,
   "Familie Walsh": 6, "De Donkere Toren": 7, "Moonlight Bay": 2, "Millennium": 3, "Timothy Wilde": 3, "Inspector Wexford": 24,
-  "Grant County": 6, "Blue Rose": 3, "De Roth Trilogie": 3, "Martin Vail": 3, "Het Wilde Eiland": 3
+  "Grant County": 6, "Blue Rose": 3, "De Roth Trilogie": 3, "Martin Vail": 3, "Het Wilde Eiland": 3, "Rechercheur De Klerck": 15
 };
 const hasSeries = b => b.s && b.s !== "-";
 function seriesLabel(b) {
@@ -530,8 +530,8 @@ function renderAuthor(a) {
       ${nOther ? `<div class="legend"><span><i style="background:var(--acc2)"></i>Gelezen (${read})</span><span><i style="border:2px solid var(--faint)"></i>Nog niet gelezen (${nOther})</span>${bs.length > read ? `<span><i style="background:var(--gold)"></i>Wensenlijst</span>` : ""}</div>
       <div class="chips" style="padding-top:2px"><button class="chip" data-f="alle" aria-pressed="${authorFilter === "alle"}">Alle boeken</button><button class="chip" data-f="gel" aria-pressed="${authorFilter === "gel"}">Alleen gelezen</button></div>` : ""}
       <ul class="tl">${shown.map((r, i) => r.b ? `<li class="read"><a href="#/boek/${r.b.id}"><span class="y">${r.y || "?"}</span><span class="dot"></span><span class="th">${coverHTML(r.b)}</span><span class="tt"><b>${esc(r.b.t)}</b>${subHTML(r.b, "")}</span>${r.b.w ? `<span class="ok w">Wens</span>` : `<span class="ok">✓ Gelezen</span>`}</a></li>`
-        : `<li class="unread"><button class="nr" data-i="${rows.indexOf(r)}"><span class="y">${r.y || "?"}</span><span class="dot"></span>${r.c ? `<span class="th"><img loading="lazy" alt="" referrerpolicy="no-referrer" src="${olCover(r.c, "S")}"></span>` : `<span class="ph2" data-find="${rows.indexOf(r)}">+</span>`}<span class="tt"><b>${esc(r.title)}</b><small>Tik voor meer informatie</small></span><span class="add">Gelezen?</span></button></li>`).join("")}</ul>
-      ${hasBib ? `<p class="src">De niet-gelezen boeken komen van Open Library. De lijst kan onvolledig zijn of verzamelbundels bevatten. Tik op een titel voor de beschrijving, of om hem als gelezen of als wens toe te voegen.</p>` : ""}</div>`;
+        : `<li class="unread"><button class="nr" data-i="${rows.indexOf(r)}"><span class="y">${r.y || "?"}</span><span class="dot"></span>${r.c ? `<span class="th"><img loading="lazy" alt="" referrerpolicy="no-referrer" src="${olCover(r.c, "S")}"></span>` : `<span class="ph2" data-find="${rows.indexOf(r)}">+</span>`}<span class="tt"><b>${esc(r.title)}</b></span></button></li>`).join("")}</ul>
+      ${hasBib ? `<p class="src">De niet-gelezen boeken komen uit openbare boekencatalogi. De lijst kan onvolledig zijn of verzamelbundels bevatten. Tik op een titel voor de beschrijving, of om hem als gelezen of als wens toe te voegen.</p>` : ""}</div>`;
   hydrate($("#sBody"));
   loadWiki(a, $("#wikiBox"));
   $("#sBody").querySelectorAll("[data-find]").forEach(el => {     // ongelezen boeken zonder omslag: alsnog opzoeken
@@ -652,7 +652,7 @@ $("#fDel").onclick = () => {
 
 /* ---------- Menu: backup, thema, omslagen ---------- */
 function toast(m) { const t = $("#toast"); t.textContent = m; t.classList.add("on"); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove("on"), 2200); }
-const APP = { versie: "1.4", datum: "8 november 2026" };   // bij elke update aanpassen
+const APP = { versie: "1.5", datum: "8 november 2026" };   // bij elke update aanpassen
 const SUN = '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
   MOON = '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>';
 const isDark = () => { const t = lsGet("pb-theme", "auto"); return t === "dark" || (t === "auto" && matchMedia("(prefers-color-scheme: dark)").matches); };

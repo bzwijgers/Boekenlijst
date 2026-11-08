@@ -390,3 +390,28 @@ Object.assign(window.COVERS, {"Bjørk, Samuel|De doodsvogel":"https://is1-ssl.mz
 ["Campbell, Ramsey|De wezenlijke oorzaak","Campbell, Ramsey|Deze keer","Campbell, Ramsey|Een verhaaltje voor het slapen gaan","Campbell, Ramsey|Gemiste aansluiting","Campbell, Ramsey|In de bomen","Campbell, Ramsey|Naar buiten kijken","Tuttle, Lisa|De bruid van de draak","Tuttle, Lisa|De nachtmerrie berijden","Tuttle, Lisa|Uit een ander land"].forEach(function (k) { window.COVERS[k] = window.COVERS["Barker, Clive|Hellehart"]; });
 
 Object.assign(window.COVERS, {"Harrewijn, Astrid|Drie vrienden, een huis":"https://books.google.com/books/content?id=wMPmCgAAQBAJ\u0026printsec=frontcover\u0026img=1\u0026zoom=1","Harrewijn, Astrid|Luchtkussen":"https://books.google.com/books/content?id=4I6qDwAAQBAJ\u0026printsec=frontcover\u0026img=1\u0026zoom=1","Harrewijn, Astrid|Miss Communicatie":"https://books.google.com/books/content?id=Ss96DwAAQBAJ\u0026printsec=frontcover\u0026img=1\u0026zoom=1","Harrewijn, Astrid|Miss Match":"https://books.google.com/books/content?id=_s16DwAAQBAJ\u0026printsec=frontcover\u0026img=1\u0026zoom=1","Harrewijn, Astrid|Miss Verstand":"https://books.google.com/books/content?id=AM56DwAAQBAJ\u0026printsec=frontcover\u0026img=1\u0026zoom=1","Harrewijn, Astrid|Vrienden voor het leven":"https://books.google.com/books/content?id=iGEoDwAAQBAJ\u0026printsec=frontcover\u0026img=1\u0026zoom=1","Vlugt, Simone van der|Vlinders":"https://books.google.com/books/content?id=s92fKAAACAAJ\u0026printsec=frontcover\u0026img=1\u0026zoom=1"});
+
+
+/* Paul Dieudonné: reeks en omslagen van rechercheurdeklerck.nl */
+(function () {
+  var U = "https://www.rechercheurdeklerck.nl/wp-content/uploads/", P = "Rechercheur De Klerck en ";
+  window.BIBLIO["Dieudonné, Paul"] = [
+    [P + "het doodvonnis", 2019, U + "2025/11/Deel1-Doodsvonnis-1.jpg", ""],
+    [P + "de doodsteek", 2019, 0, ""],
+    [P + "het duivelse spel", 2020, U + "2025/11/Deel2-DuivelseSpel.jpg", ""],
+    [P + "de ongrijpbare dood", 2020, U + "2025/11/Deel3-OngrijpbareDood.jpg", ""],
+    [P + "het lijk in transito", 2021, U + "2025/11/Deel4-LijkinTransito.jpg", ""],
+    [P + "moord in scène", 2021, U + "2025/11/Deel5-MoordinScene.jpg", ""],
+    [P + "het duistere web", 2022, U + "2025/11/Deel6-DuistereWeb.jpg", ""],
+    [P + "een dodelijk pact", 2022, U + "2025/11/Deel7-DodelijkPact.jpg", ""],
+    [P + "een fataal compromis", 2023, U + "2025/11/Deel8-FataalCompromis.jpg", ""],
+    [P + "de ongewenste dood", 2023, U + "2025/11/Deel9-OngewensteDood.jpg", ""],
+    ["Leven en werk van rechercheur De Cock", 2023, U + "2025/11/LevenenWerkvanRechercheurDeCock.jpg", ""],
+    [P + "de sluier van de dood", 2024, U + "2025/11/Deel10-SluiervandeDood.jpg", ""],
+    [P + "de status in moord", 2024, U + "2025/11/Deel11-StatusinMoord.jpg", ""],
+    [P + "de stille hoop", 2025, U + "2025/11/Deel12-StilleHoop.jpg", ""],
+    [P + "de dode weldoener", 2025, U + "2025/11/Deel13-DodeWeldoener.jpg", ""],
+    [P + "tranen om Valentijn", 2026, U + "2026/03/Dieudonne-14-Tranenomvalentijn.jpg", ""],
+    [P + "moord als toonbeeld", 2026, U + "2026/09/Dieudonne-15-Moordalstoonbeeld.jpg", ""]
+  ];
+})();

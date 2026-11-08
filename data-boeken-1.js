@@ -75,10 +75,10 @@ B("Coscarelli, Kate","Roem","Fame and Fortune","",0,"Roman",1984,"Een groep rijk
 B("Craig, Robert","Trauma","Trauma","",0,"Thriller",0,"");
 B("Deaver, Jeffery","Idolaat","XO","Kathryn Dance",3,"Thriller",2012,"Countryzangeres Kayleigh Towne wordt gestalkt door een fan. Als mensen om haar heen worden vermoord, schakelt ze verhoordeskundige Kathryn Dance in.","In de Excel stond 'sid' als auteur");
 B("Diehl, William","Het teken van het beest","Primal Fear","Martin Vail",1,"Thriller",1993,"Een jonge misdienaar wordt gearresteerd voor de gruwelijke moord op een aartsbisschop. Advocaat Martin Vail neemt de zaak aan, maar is zijn cliënt wel wie hij lijkt? Verfilmd met Richard Gere en Edward Norton.");
-B("Dieudonné, Paul","Rechercheur De Klerck: En het doodvonnis","","Rechercheur De Klerck",1,"Detective",0,"Het eerste deel van de detectivereeks rond rechercheur De Klerck.");
-B("Dieudonné, Paul","Rechercheur De Klerck: Het duivelsspel","","Rechercheur De Klerck",2,"Detective",0,"Het tweede deel van de detectivereeks rond rechercheur De Klerck.");
-B("Dieudonné, Paul","Rechercheur De Klerck: De ongrijpbare dood","","Rechercheur De Klerck",3,"Detective",0,"Het derde deel van de detectivereeks rond rechercheur De Klerck.");
-B("Dieudonné, Paul","Rechercheur De Klerck: Het lijk in transito","","Rechercheur De Klerck",4,"Detective",0,"Het vierde deel van de detectivereeks rond rechercheur De Klerck.");
+B("Dieudonné, Paul","Rechercheur De Klerck en het doodvonnis","","Rechercheur De Klerck",1,"Detective",2019,"Het eerste deel van de detectivereeks rond rechercheur De Klerck.");
+B("Dieudonné, Paul","Rechercheur De Klerck en het duivelse spel","","Rechercheur De Klerck",2,"Detective",2020,"Het tweede deel van de detectivereeks rond rechercheur De Klerck.");
+B("Dieudonné, Paul","Rechercheur De Klerck en de ongrijpbare dood","","Rechercheur De Klerck",3,"Detective",2020,"Het derde deel van de detectivereeks rond rechercheur De Klerck.");
+B("Dieudonné, Paul","Rechercheur De Klerck en het lijk in transito","","Rechercheur De Klerck",4,"Detective",2021,"Het vierde deel van de detectivereeks rond rechercheur De Klerck.");
 B("Dijkzeul, Lieneke","De geur van regen","","",0,"Thriller",0,"");
 
 B("Feist, Raymond E.","'n Boosaardig sprookje","Faerie Tale","",0,"Horror",1988,"Een gezin verhuist naar een oude boerderij in de staat New York. Al snel merken de tweelingzonen dat in het bos achter het huis kwaadaardige elfen wonen.");
