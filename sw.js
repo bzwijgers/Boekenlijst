@@ -1,7 +1,7 @@
 /* Service worker: maakt installeren als app mogelijk en laat de lijst ook zonder internet werken.
    Eerst het netwerk (zo zie je altijd de nieuwste versie), zonder verbinding de reservekopie.
    Omslagen komen van Google Books / Open Library en gaan via de gewone browsercache. */
-const CACHE = "pb-v7";
+const CACHE = "pb-v8";
 const SHELL = ["./", "index.html", "app.js", "data-boeken-1.js", "data-boeken-2.js", "data-boeken-3.js", "data-boeken-4.js", "data-schrijvers.js", "data-wensen.js", "data-extra.js", "manifest.webmanifest", "img/icon-192.png", "img/icon-512.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL.map(u => new Request(u, { cache: "no-cache" })))).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
