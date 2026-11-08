@@ -176,6 +176,19 @@ mark{background:color-mix(in srgb,var(--gold) 35%,transparent);color:inherit;bor
 .pastezone{min-height:64px;border:2px dashed var(--acc);border-radius:12px;background:var(--card);padding:12px;font-size:16px;outline:none;-webkit-user-select:text;user-select:text;overflow:hidden;max-height:90px}
 .pastezone:empty::before{content:attr(data-ph);color:var(--faint)}
 .pastezone:focus{background:var(--bg2)}
+.hearts{display:flex;gap:2px;margin:16px 0 -10px -4px}
+.hearts button{border:0;background:none;font-size:32px;line-height:1;padding:2px 4px;color:var(--line);cursor:pointer;transition:transform .12s,color .12s}
+.hearts button.on{color:var(--acc)}
+.hearts button:active{transform:scale(1.25)}
+.minih{display:block;color:var(--acc);font-size:12px;letter-spacing:1px;line-height:1.4}
+.dag{display:flex;gap:12px;align-items:center;max-width:300px;margin:0 auto 20px;padding:8px 14px 8px 8px;background:var(--card);border:1px solid var(--line);border-radius:14px;text-align:left;text-decoration:none;box-shadow:var(--shadow)}
+.dag .th{width:42px;height:63px;border-radius:4px;overflow:hidden;flex:none}
+.dag .tt{min-width:0}.dag .tt b{display:block;font:600 15px/1.2 var(--f-d)}
+.dag .tt small{display:block;color:var(--muted);font-size:12px}
+.dag .tt small:first-child{color:var(--acc);font-weight:600}
+.dot-new{display:inline-block;width:9px;height:9px;border-radius:5px;background:#e0302c;margin-left:6px;vertical-align:1px}
+.nieuwlabel{display:inline-block;margin:3px 6px 0 0;font:700 11px/1 var(--f-b);color:#fff;background:#e0302c;border-radius:8px;padding:3px 7px}
+#scanBox{width:100%;min-height:210px;border-radius:12px;overflow:hidden;background:#000}
 .covpick{display:flex;align-items:center;gap:12px}
 .covpick #fCov{width:60px;height:90px;border-radius:5px;overflow:hidden;flex:none;background:var(--bg2);border:1px dashed var(--line)}
 .covpick #fCov img{width:100%;height:100%;object-fit:cover;display:block}
@@ -257,6 +270,7 @@ form.ed{padding:18px 0}
     <h1><span class="hand">Peet's</span><span class="big">Boeken<em>kast</em><svg class="lelie" aria-hidden="true"><use href="#lelie"/></svg></span></h1>
     <p class="sub" id="tagline">Gelezen, genoten en bewaard.</p>
     <div class="stats"><div><b id="nB">0</b><span>boeken</span></div><div><b id="nA">0</b><span>schrijvers</span></div><div><b id="nW">0</b><span>op de wensenlijst</span></div></div>
+    <a class="dag" id="dag"></a>
     <div class="btns" style="justify-content:center">
       <a class="btn pri" href="#/lijst" style="flex:0 1 280px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 19.5V5a2 2 0 0 1 2-2h14v16H6a2 2 0 0 0-2 2Zm0 0A2 2 0 0 0 6 22h14"/></svg>Open de boekenlijst</a>
     </div>
@@ -317,6 +331,7 @@ form.ed{padding:18px 0}
   </div></div></div>
   <div class="wrap">
     <form class="ed" id="form" autocomplete="off">
+      <button class="btn" type="button" id="scanBtn" style="width:100%;margin-bottom:14px">📷 Scan de streepjescode</button>
       <div class="fld sugg"><label for="fA">Schrijver *</label><input id="fA" required placeholder="Begin te typen, bijv. King" autocomplete="off" role="combobox" aria-autocomplete="list"><ul id="sgA" class="hidden" role="listbox"></ul></div>
       <div class="known hidden" id="knownA"></div>
       <p class="hint">Bijvoorbeeld ‘King, Stephen’. Kies een bestaande naam uit de lijst, dan komt het boek bij de juiste schrijver.</p>
