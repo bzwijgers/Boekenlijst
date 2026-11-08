@@ -67,7 +67,7 @@ window.SCHRIJVERS = {
 "McQueen, Holly":"Britse schrijfster van humoristische chicklits rond Isabel Bookbinder.",
 "Middelbeek, Mariëtte":"Nederlandse schrijfster van chicklits en feelgoodromans.",
 "Mosby, Steve":"Britse thrillerschrijver (1976) uit Leeds.",
-"Mustard, Stewart Fred":"",
+"Stewart, Fred Mustard":"Amerikaanse schrijver van historische familieromans, onder meer over rijke families in New York.",
 "Nathan, Melissa":"Britse schrijfster (1968-2006) van romantische komedies. Overleed op 37-jarige leeftijd aan borstkanker.",
 "Newby, Eric":"Britse reisschrijver (1919-2006), bekend van ‘A Short Walk in the Hindu Kush’ en zijn boek over zijn huis in Italië.",
 "Newman, Ruth":"Britse thrillerschrijfster, opgegroeid in Cambridge.",

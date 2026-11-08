@@ -8,8 +8,8 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="img/icon-192.png"><link rel="apple-touch-icon" href="img/icon-192.png">
 <meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="Petra's boekenlijst">
-<title>Petra's boekenlijst</title>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="Peet's boekenkast">
+<title>Peet's boekenkast</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,400;1,9..144,600&family=Instrument+Sans:wght@400;500;600;700&family=Caveat:wght@700&display=swap">
 <style>
@@ -160,6 +160,16 @@ mark{background:color-mix(in srgb,var(--gold) 35%,transparent);color:inherit;bor
 .tl .y{width:36px;font:700 13px var(--f-b);color:var(--acc);text-align:right;flex:none}
 .tl .dot{width:10px;height:10px;border-radius:5px;background:var(--acc);flex:none;position:relative;z-index:1;box-shadow:0 0 0 3px var(--bg)}
 .tl .th{width:40px;height:60px;border-radius:4px;overflow:hidden;flex:none}
+.tl .th img{width:100%;height:100%;object-fit:cover;display:block}
+.wiki p{margin:0 0 12px;font-size:16px;line-height:1.6}
+.wiki h4{font:600 17px var(--f-d);margin:18px 0 6px}
+.src a{color:var(--acc)}
+.addhead{display:flex;gap:14px;align-items:flex-end;margin:4px 6px 12px}
+.addhead img{width:76px;border-radius:5px;box-shadow:var(--shadow);flex:none}
+.covpick{display:flex;align-items:center;gap:12px}
+.covpick #fCov{width:60px;height:90px;border-radius:5px;overflow:hidden;flex:none;background:var(--bg2);border:1px dashed var(--line)}
+.covpick #fCov img{width:100%;height:100%;object-fit:cover;display:block}
+.covpick .btn{flex:1;height:46px}
 .tl .tt b{display:block;font-weight:600;line-height:1.3}
 .tl .tt{flex:1;min-width:0}
 .tl li a,.tl li button.nr{width:100%;border:0;background:none;text-align:left;cursor:pointer;font:inherit;color:inherit}
@@ -218,10 +228,10 @@ form.ed{padding:18px 0}
       <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" stroke-width="2"/>
       <circle cx="50" cy="50" r="39" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="2 3"/>
       <defs><path id="arc" d="M50 50 m-31 0 a31 31 0 1 1 62 0 a31 31 0 1 1 -62 0"/></defs>
-      <text><textPath href="#arc" startOffset="2%">Ex libris · Petra · Ex libris · Petra ·</textPath></text>
+      <text><textPath href="#arc" startOffset="2%">Ex libris · Peet · Ex libris · Peet ·</textPath></text>
       <path d="M36 62V38c5-3 10-3 14 1 4-4 9-4 14-1v24c-5-3-10-3-14 1-4-4-9-4-14-1Zm14-23v24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
     </svg>
-    <h1><span class="hand">Petra's</span><span class="big">Boeken<em>lijst</em></span></h1>
+    <h1><span class="hand">Peet's</span><span class="big">Boeken<em>kast</em></span></h1>
     <p class="sub" id="tagline">Gelezen, genoten en bewaard.</p>
     <div class="stats"><div><b id="nB">0</b><span>boeken</span></div><div><b id="nA">0</b><span>schrijvers</span></div><div><b id="nW">0</b><span>op de wensenlijst</span></div></div>
     <div class="btns" style="justify-content:center">
@@ -236,7 +246,7 @@ form.ed{padding:18px 0}
   <div class="bar"><div class="wrap">
     <div class="row">
       <a class="ib" href="#/" aria-label="Naar het startscherm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg></a>
-      <h2><span class="h">Petra's</span> Boeken<em>lijst</em></h2>
+      <h2><span class="h">Peet's</span> Boeken<em>kast</em></h2>
       <button class="ib" id="themeBtn" aria-label="Licht of donker"></button>
       <button class="ib" id="menuBtn" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
       <a class="ib pri" href="#/nieuw" aria-label="Boek toevoegen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></a>
@@ -289,6 +299,7 @@ form.ed{padding:18px 0}
       <p class="hint">Bijvoorbeeld ‘King, Stephen’. Kies een bestaande naam uit de lijst, dan komt het boek bij de juiste schrijver.</p>
       <div class="fld"><label for="fT">Titel (Nederlands) *</label><input id="fT" required></div>
       <div class="fld"><label for="fO">Oorspronkelijke / Engelse titel</label><input id="fO"></div>
+      <div class="fld"><label>Omslag</label><div class="covpick"><div id="fCov"></div><button class="btn" type="button" id="fCovBtn">Omslag toevoegen of plakken</button></div></div>
       <div class="two">
         <div class="fld"><label for="fS">Serie</label><input id="fS" list="dlS"></div>
         <div class="fld"><label for="fN">Deel</label><input id="fN" type="number" min="0" inputmode="numeric"></div>

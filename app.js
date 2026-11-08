@@ -1,4 +1,4 @@
-/* Petra's Boekenlijst — app-logica
+/* Peet's boekenkast — app-logica
    Basisgegevens staan in data-*.js. Alles wat Petra zelf toevoegt of wijzigt (nieuwe boeken, memo's,
    aanpassingen, bio's) wordt op het apparaat bewaard in localStorage en kan via het menu als backup
    worden opgeslagen en op een ander apparaat worden teruggezet. */
@@ -13,19 +13,24 @@ function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return 
 
 /* ---------- Gegevens ---------- */
 const STORE_KEY = "pb-data";
-let store = Object.assign({ edits: {}, added: [], deleted: [], bios: {} }, lsGet(STORE_KEY, {}));
+let store = Object.assign({ edits: {}, added: [], deleted: [], bios: {}, covers: {} }, lsGet(STORE_KEY, {}));
 const saveStore = () => lsSet(STORE_KEY, store);
 
 const BASE = [];
 (window.BOEKEN || []).forEach(b => BASE.push({ id: "b" + hash(b.a + "|" + b.t), a: b.a, t: b.t, o: b.o, s: b.s, n: b.n || 0, g: b.g, j: b.j || 0, z: b.z, memo: b.m || "", w: false }));
 (window.WENSEN || []).forEach(r => BASE.push({ id: "w" + hash(r[0] + "|" + r[1]), a: r[0], t: r[1], o: r[2], s: r[3], n: r[4] || 0, g: "", j: 0, z: "", memo: r[5] || "", w: true }));
 
+function tkey(s) { return norm(s).replace(/^(the|a|de|het|een)\s+/, "").replace(/[^a-z0-9]/g, ""); }
 let BOOKS = [], BYID = new Map();
 function rebuild() {
   const del = new Set(store.deleted);
   BOOKS = BASE.filter(b => !del.has(b.id)).map(b => Object.assign({}, b, store.edits[b.id] || {}))
     .concat(store.added.filter(b => !del.has(b.id)).map(b => Object.assign({}, b, store.edits[b.id] || {})));
   BOOKS.forEach(b => { b.a = (b.a || "").replace(/\s+/g, " ").trim(); b.t = (b.t || "").replace(/\s+/g, " ").trim(); });
+  // Een gelezen boek staat nooit meer op de wensenlijst, ook niet als het via een andere weg is toegevoegd
+  const gelezen = new Set();
+  BOOKS.filter(b => !b.w).forEach(b => [b.t, b.o].forEach(x => { const k = tkey(x); if (k) gelezen.add(norm(b.a) + "|" + k); }));
+  BOOKS = BOOKS.filter(b => !b.w || ![b.t, b.o].some(x => { const k = tkey(x); return k && gelezen.has(norm(b.a) + "|" + k); }));
   BYID = new Map(BOOKS.map(b => [b.id, b]));
 }
 rebuild();
@@ -49,9 +54,19 @@ const saveCovers = () => { clearTimeout(covSaveT); covSaveT = setTimeout(() => l
 const ckey = b => hash(norm(b.a) + "|" + norm(b.t));
 const pending = new Map(), queue = [];
 let active = 0;
+const olCover = (id, size) => "https://covers.openlibrary.org/b/id/" + id + "-" + (size || "M") + ".jpg";
+let BIBIDX = null;
+function bibInfo(b) {                                          // omslag en beschrijving-ID uit de bibliografie
+  if (!BIBIDX) { BIBIDX = new Map(); Object.entries(window.BIBLIO || {}).forEach(([a, l]) => l.forEach(([t, y, c, k]) => { const key = a + "|" + tkey(t); if (!BIBIDX.has(key)) BIBIDX.set(key, { c, k }); })); }
+  return BIBIDX.get(b.a + "|" + tkey(b.o)) || BIBIDX.get(b.a + "|" + tkey(b.t)) || null;
+}
 function getCover(b) {
-  const fixed = (window.COVERS || {})[b.a + "|" + b.t];       // vooraf opgezocht via Open Library
-  if (fixed) return Promise.resolve(typeof fixed === "number" ? "https://covers.openlibrary.org/b/id/" + fixed + "-M.jpg" : fixed);
+  const own = (store.covers || {})[b.id];                      // zelf toegevoegd of geplakt
+  if (own) return Promise.resolve(own);
+  const fixed = (window.COVERS || {})[b.a + "|" + b.t];        // vooraf opgezocht via Open Library
+  if (fixed) return Promise.resolve(olCover(fixed));
+  const cid = b.cid || (bibInfo(b) || {}).c;
+  if (cid) return Promise.resolve(olCover(cid));
   const k = ckey(b), c = covers[k];
   if (c && (c.u || Date.now() - c.d < 14 * 864e5)) return Promise.resolve(c.u || "");
   if (pending.has(k)) return pending.get(k);
@@ -269,17 +284,140 @@ function renderBook(b) {
       <a class="by" href="#/schrijver/${encodeURIComponent(b.a)}">${esc(niceName(b.a))}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></a></div></div>
     <div class="facts">${facts.map(f => `<div class="fact"><small>${f[0]}</small><span>${esc(f[1])}</span></div>`).join("")}</div>
     <div class="sec"><h3>Samenvatting</h3>${b.z ? `<p>${esc(b.z)}</p>` : `<p class="none">Nog geen samenvatting. Tik op het potlood om er een toe te voegen.</p>`}</div>
+    <div class="sec" id="descSec"><h3>Meer over dit boek</h3><div id="descBox"><p class="none">Beschrijving ophalen…</p></div></div>
     <div class="sec"><h3>Memo</h3><textarea class="memo" id="memo" placeholder="Eigen aantekeningen: wat vond je ervan, cijfer, uitgeleend aan…">${esc(b.memo)}</textarea><div class="saved" id="saved"></div></div>
     ${others.length ? `<div class="sec"><h3>Ook in ${esc(b.s)}</h3><ul class="tl" style="margin-top:0">${others.map(x => `<li><a href="#/boek/${x.id}"><span class="y">${x.n ? "#" + x.n : ""}</span><span class="dot"></span><span class="th">${coverHTML(x)}</span><span class="tt"><b>${esc(x.t)}</b><small>${x.j || ""}${x.w ? " · wensenlijst" : ""}</small></span></a></li>`).join("")}</ul></div>` : ""}
-    <div class="acts">${b.w ? `<button class="btn pri" id="markRead">Gelezen!</button>` : ""}<a class="btn" href="#/bewerk/${b.id}">Bewerken</a></div>`;
+    <div class="acts">${b.w ? `<button class="btn pri" id="markRead">Gelezen!</button>` : ""}<button class="btn" id="covBtn">Omslag toevoegen of plakken</button><a class="btn" href="#/bewerk/${b.id}">Bewerken</a></div>`;
   hydrate($("#bBody"));
+  lastBook = b.id;
+  $("#covBtn").onclick = () => coverSheet(!!store.covers[b.id], u => { if (setCover(b.id, u)) renderBook(BYID.get(b.id)); });
+  const wk = b.wk || (bibInfo(b) || {}).k;
+  if (wk) loadDesc(wk, $("#descBox"), () => { const s = $("#descSec"); if (s) s.remove(); }); else $("#descSec").remove();
   let t = 0;
   $("#memo").addEventListener("input", e => {
     clearTimeout(t); $("#saved").textContent = "";
     t = setTimeout(() => { setField(b.id, { memo: e.target.value }); $("#saved").textContent = "✓ Opgeslagen"; }, 500);
   });
   const mr = $("#markRead");
-  if (mr) mr.onclick = () => { setField(b.id, { w: false }); toast("Verplaatst naar ‘Gelezen’"); renderBook(BYID.get(b.id)); };
+  if (mr) mr.onclick = () => { setField(b.id, { w: false }); toast("Gelezen! Van de wensenlijst gehaald"); renderBook(BYID.get(b.id)); };
+}
+
+/* ---------- Eigen omslag: kiezen, plakken of webadres ---------- */
+let lastBook = null, pendingCover;
+function imgToData(blob) {
+  return new Promise((ok, no) => {
+    const u = URL.createObjectURL(blob), i = new Image();
+    i.onload = () => {
+      const sc = Math.min(1, 360 / i.naturalWidth), c = document.createElement("canvas");
+      c.width = Math.round(i.naturalWidth * sc); c.height = Math.round(i.naturalHeight * sc);
+      c.getContext("2d").drawImage(i, 0, 0, c.width, c.height); URL.revokeObjectURL(u);
+      ok(c.toDataURL("image/jpeg", .78));
+    };
+    i.onerror = () => { URL.revokeObjectURL(u); no(new Error("geen afbeelding")); };
+    i.src = u;
+  });
+}
+function setCover(id, u) {
+  const old = store.covers[id];
+  if (u) store.covers[id] = u; else delete store.covers[id];
+  if (!saveStore()) { if (old) store.covers[id] = old; else delete store.covers[id]; toast("Het geheugen van dit apparaat is vol"); return false; }
+  toast(u ? "Omslag opgeslagen" : "Eigen omslag verwijderd");
+  return true;
+}
+function coverSheet(hasOwn, apply) {
+  const use = blob => imgToData(blob).then(apply).catch(() => toast("Dit bestand is geen afbeelding"));
+  const s = document.createElement("div"); s.className = "sheet";
+  s.innerHTML = `<div class="in"><div class="grab"></div>
+    <p style="margin:4px 6px 8px;font:600 19px var(--f-d)">Omslag toevoegen</p>
+    <button class="it" data-k="file"><span style="font-size:20px">🖼</span><span>Foto of afbeelding kiezen<small>Uit je galerij of bestanden, of maak een foto van het boek</small></span></button>
+    <button class="it" data-k="paste"><span style="font-size:20px">📋</span><span>Plakken<small>Een gekopieerde afbeelding of webadres. Op de computer kan ook Ctrl+V</small></span></button>
+    <div class="fld" style="margin:12px 6px 4px"><label for="covUrl">Of plak hier het webadres van een afbeelding</label><div style="display:flex;gap:8px"><input id="covUrl" type="url" placeholder="https://…" autocomplete="off"><button class="btn" data-k="url" style="flex:none">Gebruik</button></div></div>
+    ${hasOwn ? `<button class="it" data-k="del"><span style="font-size:20px">×</span><span>Eigen omslag verwijderen</span></button>` : ""}
+    <button class="it" data-k="x"><span style="font-size:20px">←</span><span>Annuleren</span></button></div>`;
+  s.addEventListener("click", async e => {
+    const it = e.target.closest("[data-k]");
+    if (e.target === s) { s.remove(); return; }
+    if (!it) return;
+    const k = it.dataset.k;
+    if (k === "url") {
+      const v = $("#covUrl").value.trim();
+      if (!/^https?:\/\//i.test(v)) { toast("Dat is geen geldig webadres"); return; }
+      s.remove(); apply(v); return;
+    }
+    s.remove();
+    if (k === "del") apply(null);
+    if (k === "file") { const f = document.createElement("input"); f.type = "file"; f.accept = "image/*"; f.onchange = () => { if (f.files[0]) use(f.files[0]); }; f.click(); }
+    if (k === "paste") {
+      try {
+        for (const item of await navigator.clipboard.read()) {
+          const ty = item.types.find(t => t.startsWith("image/"));
+          if (ty) { use(await item.getType(ty)); return; }
+          if (item.types.includes("text/plain")) { const tx = (await (await item.getType("text/plain")).text()).trim(); if (/^https?:\/\//i.test(tx)) { apply(tx); return; } }
+        }
+        toast("Er staat geen afbeelding op het klembord");
+      } catch (err) { toast("Plakken lukt hier niet. Probeer Ctrl+V of kies een afbeelding"); }
+    }
+  });
+  document.body.appendChild(s);
+}
+document.addEventListener("paste", e => {                       // Ctrl+V op de boekpagina of in het formulier
+  if (current !== "boek" && current !== "nieuw") return;
+  const item = [...((e.clipboardData && e.clipboardData.items) || [])].find(i => i.type.startsWith("image/"));
+  if (!item) return;
+  e.preventDefault();
+  imgToData(item.getAsFile()).then(u => {
+    if (current === "boek") { if (setCover(lastBook, u)) renderBook(BYID.get(lastBook)); }
+    else setFormCover(u);
+  }).catch(() => toast("Dit is geen afbeelding"));
+});
+
+/* ---------- Langere teksten: Wikipedia (schrijver) en Open Library (boek), opgehaald op het apparaat zelf ---------- */
+const textCache = new Map();
+const translateLink = t => `<a href="https://translate.google.com/?sl=auto&tl=nl&op=translate&text=${encodeURIComponent(t.slice(0, 1800))}" target="_blank" rel="noopener">Vertaal naar Nederlands</a>`;
+async function loadDesc(key, box, onNone) {
+  try {
+    let t = textCache.get(key);
+    if (t === undefined) {
+      const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 12000);   // niet eindeloos blijven wachten
+      const r = await fetch("https://openlibrary.org/works/" + key + ".json", { signal: ctl.signal }).finally(() => clearTimeout(to));
+      if (!r.ok) throw new Error(r.status);
+      const j = await r.json(), d = typeof j.description === "string" ? j.description : (j.description && j.description.value) || "";
+      t = d.split(/\n-{3,}|\n\*{3,}/)[0].replace(/\[([^\]]+)\]\([^)]*\)/g, "$1").replace(/\[\d+\]:\s*\S+/g, "").trim();
+      textCache.set(key, t);
+    }
+    if (!box.isConnected) return;
+    if (!t) { if (onNone) onNone(); else box.innerHTML = `<p class="none">Geen beschrijving gevonden.</p>`; return; }
+    box.innerHTML = `<div class="wiki">${t.split(/\n\s*\n/).map(p => `<p>${esc(p)}</p>`).join("")}</div>
+      <p class="src">Bron: <a href="https://openlibrary.org/works/${key}" target="_blank" rel="noopener">Open Library</a> · ${translateLink(t)}</p>`;
+  } catch (e) { if (box.isConnected) { if (onNone) onNone(); else box.innerHTML = `<p class="none">De beschrijving kon nu niet worden opgehaald. Probeer het later nog eens.</p><p class="src"><a href="https://openlibrary.org/works/${key}" target="_blank" rel="noopener">Bekijk op Open Library</a></p>`; } }
+}
+const WIKI_STOP = /^(bibliografie|bibliography|werken|works|boeken|books|novels|romans|thrillers|externe links?|external links|referenties|references|bronnen|bron|zie ook|see also|publicaties|publications|selected|filmografie|filmography|prijzen|awards|notes|voetnoten|verfilmingen|adaptations|nederlandse vertalingen)\b/i;
+async function loadWiki(a, box) {
+  const w = (window.WIKI || {})[a]; if (!w) return;
+  const [lang, title] = [w.slice(0, 2), w.slice(3)], url = `https://${lang}.wikipedia.org/wiki/${encodeURIComponent(title.replace(/ /g, "_"))}`;
+  try {
+    let paras = textCache.get(w);
+    if (!paras) {
+      const r = await fetch(`https://${lang}.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=extracts&explaintext=1&exsectionformat=plain&redirects=1&titles=${encodeURIComponent(title)}`);
+      if (!r.ok) throw new Error(r.status);
+      const page = Object.values((await r.json()).query.pages)[0], lines = String(page.extract || "").split("\n").map(s => s.trim()).filter(Boolean);
+      paras = []; let n = 0;
+      for (const l of lines) {
+        const head = l.length < 60 && !/[.!?:]$/.test(l);
+        if (head && WIKI_STOP.test(l)) break;
+        if (n > 3500 && !head) break;
+        paras.push({ h: head, t: l }); if (!head) n += l.length;
+      }
+      while (paras.length && paras[paras.length - 1].h) paras.pop();
+      textCache.set(w, paras);
+    }
+    if (!box.isConnected || !paras.length) return;
+    const total = paras.reduce((s, p) => s + p.t.length, 0), own = store.bios[a] !== undefined;
+    if (lang === "nl" && total < bio(a).length * 1.3) { box.innerHTML = `<p class="src"><a href="${url}" target="_blank" rel="noopener">Meer op Wikipedia</a></p>`; return; }
+    if (lang === "nl" && !own) $("#bioBox").innerHTML = "";
+    box.innerHTML = `<div class="wiki">${paras.map(p => p.h ? `<h4>${esc(p.t)}</h4>` : `<p>${esc(p.t)}</p>`).join("")}</div>
+      <p class="src">Bron: <a href="${url}" target="_blank" rel="noopener">Wikipedia</a> (tekst onder CC BY-SA)${lang === "en" ? ` · <a href="https://translate.google.com/translate?sl=en&tl=nl&u=${encodeURIComponent(url)}" target="_blank" rel="noopener">Vertaal naar Nederlands</a>` : ""}</p>`;
+  } catch (e) { /* geen verbinding: de korte bio blijft staan */ }
 }
 function setField(id, obj) {
   const added = store.added.find(x => x.id === id);
@@ -288,16 +426,15 @@ function setField(id, obj) {
 }
 
 /* ---------- Schrijver ---------- */
-const tkey = s => norm(s).replace(/^(the|a|de|het|een)\s+/, "").replace(/[^a-z0-9]/g, "");
 let authorFilter = "alle";
 /* Alle boeken van een schrijver: Petra's boeken + de bibliografie (Open Library), op jaar */
 function authorTimeline(a) {
   const mine = BOOKS.filter(b => b.a === a), used = new Set(), rows = [];
-  ((window.BIBLIO || {})[a] || []).forEach(([title, year]) => {
+  ((window.BIBLIO || {})[a] || []).forEach(([title, year, c, wk]) => {
     const k = tkey(title);
     const m = mine.find(b => !used.has(b.id) && (tkey(b.o) === k || tkey(b.t) === k));
     if (m) { used.add(m.id); rows.push({ b: m, y: m.j || year }); }
-    else if (!rows.some(r => !r.b && tkey(r.title) === k)) rows.push({ title, y: year });
+    else if (!rows.some(r => !r.b && tkey(r.title) === k)) rows.push({ title, y: year, c, wk });
   });
   mine.filter(b => !used.has(b.id)).forEach(b => rows.push({ b, y: b.j || 0 }));
   return rows.sort((x, y) => (x.y || 9999) - (y.y || 9999) || ((x.b && x.b.n) || 0) - ((y.b && y.b.n) || 0));
@@ -314,14 +451,15 @@ function renderAuthor(a) {
   $("#sBody").innerHTML = `
     <div class="ahead"><div class="ini">${esc(ini)}</div><h1>${esc(nm)}</h1>
       <div class="meta">${read} gelezen${bs.length > read ? " · " + (bs.length - read) + " op de wensenlijst" : ""}${gs.length ? " · " + esc(gs.join(", ")) : ""}</div></div>
-    <div class="sec"><h3>Over de schrijver</h3><div id="bioBox">${bt ? `<p>${esc(bt)}</p>` : `<p class="none">Nog geen bio. Tik op het potlood om er een te schrijven.</p>`}</div></div>
+    <div class="sec"><h3>Over de schrijver</h3><div id="bioBox">${bt ? `<p>${esc(bt)}</p>` : `<p class="none">Nog geen bio. Tik op het potlood om er een te schrijven.</p>`}</div><div id="wikiBox"></div></div>
     <div class="sec"><h3>${hasBib ? "Alle boeken op jaar van verschijnen" : "Boeken op jaar van verschijnen"}</h3>
       ${nOther ? `<div class="legend"><span><i style="background:var(--acc2)"></i>Gelezen (${read})</span><span><i style="border:2px solid var(--faint)"></i>Nog niet gelezen (${nOther})</span>${bs.length > read ? `<span><i style="background:var(--gold)"></i>Wensenlijst</span>` : ""}</div>
       <div class="chips" style="padding-top:2px"><button class="chip" data-f="alle" aria-pressed="${authorFilter === "alle"}">Alle boeken</button><button class="chip" data-f="gel" aria-pressed="${authorFilter === "gel"}">Alleen gelezen</button></div>` : ""}
       <ul class="tl">${shown.map((r, i) => r.b ? `<li class="read"><a href="#/boek/${r.b.id}"><span class="y">${r.y || "?"}</span><span class="dot"></span><span class="th">${coverHTML(r.b)}</span><span class="tt"><b>${esc(r.b.t)}</b>${subHTML(r.b, "")}</span>${r.b.w ? `<span class="ok w">Wens</span>` : `<span class="ok">✓ Gelezen</span>`}</a></li>`
-        : `<li class="unread"><button class="nr" data-i="${rows.indexOf(r)}"><span class="y">${r.y || "?"}</span><span class="dot"></span><span class="ph2">+</span><span class="tt"><b>${esc(r.title)}</b></span><span class="add">Gelezen?</span></button></li>`).join("")}</ul>
-      ${hasBib ? `<p class="src">De lijst met niet-gelezen boeken komt van Open Library en kan onvolledig zijn of ook verzamelbundels bevatten. Tik op een titel om hem als gelezen of als wens toe te voegen.</p>` : ""}</div>`;
+        : `<li class="unread"><button class="nr" data-i="${rows.indexOf(r)}"><span class="y">${r.y || "?"}</span><span class="dot"></span>${r.c ? `<span class="th"><img loading="lazy" alt="" referrerpolicy="no-referrer" src="${olCover(r.c, "S")}"></span>` : `<span class="ph2">+</span>`}<span class="tt"><b>${esc(r.title)}</b><small>Tik voor meer informatie</small></span><span class="add">Gelezen?</span></button></li>`).join("")}</ul>
+      ${hasBib ? `<p class="src">De niet-gelezen boeken komen van Open Library. De lijst kan onvolledig zijn of verzamelbundels bevatten. Tik op een titel voor de beschrijving, of om hem als gelezen of als wens toe te voegen.</p>` : ""}</div>`;
   hydrate($("#sBody"));
+  loadWiki(a, $("#wikiBox"));
   $("#sBody").querySelectorAll(".chip[data-f]").forEach(c => c.onclick = () => { authorFilter = c.dataset.f; renderAuthor(a); });
   $("#sBody").querySelectorAll("button.nr").forEach(btn => btn.onclick = () => askAdd(a, rows[+btn.dataset.i]));
   $("#sEdit").onclick = () => {
@@ -335,9 +473,11 @@ function renderAuthor(a) {
 function askAdd(a, r) {
   const s = document.createElement("div"); s.className = "sheet";
   s.innerHTML = `<div class="in"><div class="grab"></div>
-    <p style="margin:4px 6px 2px;font:600 19px var(--f-d)">${esc(r.title)}</p>
-    <p style="margin:0 6px 10px;color:var(--muted)">${esc(niceName(a))}${r.y ? " · " + r.y : ""}</p>
-    <button class="it" data-k="gel"><span style="font-size:20px">✓</span><span>Gelezen<small>Toevoegen aan Petra's lijst en meteen aanvullen</small></span></button>
+    <div class="addhead">${r.c ? `<img alt="" referrerpolicy="no-referrer" src="${olCover(r.c)}">` : ""}<div>
+      <p style="margin:4px 0 2px;font:600 20px/1.2 var(--f-d)">${esc(r.title)}</p>
+      <p style="margin:0;color:var(--muted)">${esc(niceName(a))}${r.y ? " · " + r.y : ""}</p></div></div>
+    ${r.wk ? `<div class="sec" id="askDesc" style="margin:0 6px 8px"><div><p class="none">Beschrijving ophalen…</p></div></div>` : ""}
+    <button class="it" data-k="gel"><span style="font-size:20px">✓</span><span>Gelezen<small>Toevoegen aan Peet's boekenkast en meteen aanvullen</small></span></button>
     <button class="it" data-k="wens"><span style="font-size:20px">♡</span><span>Op de wensenlijst<small>Wil ik nog lezen</small></span></button>
     <button class="it" data-k="x"><span style="font-size:20px">×</span><span>Annuleren</span></button></div>`;
   s.addEventListener("click", e => {
@@ -345,12 +485,13 @@ function askAdd(a, r) {
     if (e.target === s || it) s.remove();
     if (!it || it.dataset.k === "x") return;
     const w = it.dataset.k === "wens", id = "u" + Date.now().toString(36);
-    store.added.push({ id, a, t: r.title, o: r.title, s: "", n: 0, g: "", j: r.y || 0, z: "", memo: "", w });
+    store.added.push({ id, a, t: r.title, o: r.title, s: "", n: 0, g: "", j: r.y || 0, z: "", memo: "", w, cid: r.c || 0, wk: r.wk || "" });
     saveStore(); rebuild(); openSet.add(a); lsSet("pb-open", [...openSet]);
     if (w) { toast("Op de wensenlijst gezet"); renderAuthor(a); }
     else { fillHint = true; location.hash = "#/bewerk/" + id; }
   });
   document.body.appendChild(s);
+  if (r.wk) loadDesc(r.wk, s.querySelector("#askDesc > div"));
 }
 
 /* ---------- Toevoegen / bewerken ---------- */
@@ -385,8 +526,12 @@ $("#sgA").addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
   $("#fA").value = b.dataset.a; $("#sgA").classList.add("hidden"); knownNote(); $("#fT").focus();
 });
+function setFormCover(u) { pendingCover = u; $("#fCov").innerHTML = u ? `<img alt="" referrerpolicy="no-referrer" src="${esc(u)}">` : ""; toast(u ? "Omslag klaargezet, sla het boek op" : "Omslag weggehaald"); }
+$("#fCovBtn").onclick = () => coverSheet(!!pendingCover || !!(editing && store.covers[editing.id]), setFormCover);
 function renderForm(b) {
   editing = b;
+  pendingCover = undefined;
+  $("#fCov").innerHTML = b ? coverHTML(b) : ""; if (b) hydrate($("#fCov"));
   $("#fTitle").textContent = b ? (fillHint ? "Boek aanvullen" : "Boek bewerken") : "Boek toevoegen";
   $("#dlS").innerHTML = [...new Set(BOOKS.map(x => x.s).filter(s => s && s !== "-"))].sort().map(s => `<option value="${esc(s)}">`).join("");
   $("#dlG").innerHTML = [...new Set(BOOKS.map(x => x.g).filter(Boolean))].sort().map(s => `<option value="${esc(s)}">`).join("");
@@ -411,6 +556,7 @@ $("#form").addEventListener("submit", e => {
     id = "u" + Date.now().toString(36); store.added.push(Object.assign({ id }, d)); saveStore(); rebuild();
     toast("‘" + t + "’ toegevoegd");
   }
+  if (pendingCover !== undefined) setCover(id, pendingCover);
   openSet.add(a); lsSet("pb-open", [...openSet]);
   history.replaceState(null, "", "#/boek/" + id); route();
 });
@@ -425,7 +571,7 @@ $("#fDel").onclick = () => {
 
 /* ---------- Menu: backup, thema, omslagen ---------- */
 function toast(m) { const t = $("#toast"); t.textContent = m; t.classList.add("on"); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove("on"), 2200); }
-const APP = { versie: "1.1", datum: "7 november 2026" };   // bij elke update aanpassen
+const APP = { versie: "1.2", datum: "8 november 2026" };   // bij elke update aanpassen
 const SUN = '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
   MOON = '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>';
 const isDark = () => { const t = lsGet("pb-theme", "auto"); return t === "dark" || (t === "auto" && matchMedia("(prefers-color-scheme: dark)").matches); };
@@ -439,7 +585,7 @@ $("#themeBtn").onclick = () => { lsSet("pb-theme", isDark() ? "light" : "dark");
 async function exportExcel(withWishes) {
   const rows = BOOKS.filter(b => withWishes || !b.w).sort((x, y) => sortKey(x.a).localeCompare(sortKey(y.a), "nl") || sortKey(x.t).localeCompare(sortKey(y.t), "nl", { numeric: true }))
     .map(b => ({ "Auteur": b.a, "Nederlandse titel": b.t, "Oorspronkelijke titel": enTitle(b), "Serie": hasSeries(b) ? b.s : "", "Deel": b.n || "", "Genre": b.g || "", "Jaar": b.j || "", "Samenvatting": b.z || "", "Memo": b.memo || "", "Status": b.w ? "Wensenlijst" : "Gelezen" }));
-  const name = "Petra's boekenlijst " + new Date().toISOString().slice(0, 10);
+  const name = "Peet's boekenkast " + new Date().toISOString().slice(0, 10);
   try {
     if (!window.XLSX) await new Promise((ok, fail) => { const s = document.createElement("script"); s.src = "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"; s.onload = ok; s.onerror = fail; document.head.appendChild(s); });
     const ws = XLSX.utils.json_to_sheet(rows);
@@ -465,7 +611,7 @@ $("#menuBtn").onclick = () => {
     <button class="it" data-k="imp">${ic('<path d="M12 15V3m0 0L8 7m4-4 4 4M4 17v3h16v-3"/>')}<span>Backup terugzetten<small>Bijvoorbeeld van de telefoon naar de iPad</small></span></button>
     <button class="it" data-k="theme">${ic('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>')}<span>Weergave automatisch${th === "auto" ? " (nu aan)" : ""}<small>Licht of donker volgens de instelling van het apparaat. Met de zon/maan-knop kies je het zelf.</small></span></button>
     <button class="it" data-k="cov">${ic('<path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/>')}<span>Omslagen opnieuw zoeken<small>Als er een verkeerde of geen voorkant wordt getoond</small></span></button>
-    <div class="about"><b>Boekenlijst Petra Zwijgers</b>
+    <div class="about"><b>Peet's boekenkast</b><span>De boeken van Petra Zwijgers</span>
       <span>Versie ${APP.versie} · laatst bijgewerkt ${APP.datum}</span>
       <span>${BOOKS.filter(b => !b.w).length} gelezen boeken · ${new Set(BOOKS.filter(b => !b.w).map(b => b.a)).size} schrijvers · ${BOOKS.filter(b => b.w).length} op de wensenlijst</span>
       <span>Gemaakt met liefde door Barry Zwijgers ♥</span></div></div>`;
@@ -485,7 +631,7 @@ $("#menuBtn").onclick = () => {
 function exportData() {
   const blob = new Blob([JSON.stringify({ app: "petra-boekenlijst", versie: 1, datum: new Date().toISOString(), data: store }, null, 1)], { type: "application/json" });
   const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
-  a.download = "petra-boekenlijst-backup-" + new Date().toISOString().slice(0, 10) + ".json";
+  a.download = "peets-boekenkast-backup-" + new Date().toISOString().slice(0, 10) + ".json";
   document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
   toast("Backup opgeslagen");
 }
@@ -495,8 +641,8 @@ $("#impFile").addEventListener("change", async e => {
     const j = JSON.parse(await f.text());
     if (j.app !== "petra-boekenlijst" || !j.data) throw new Error();
     if (!confirm("Backup van " + (j.datum || "").slice(0, 10) + " terugzetten? De huidige aanpassingen op dit apparaat worden vervangen.")) return;
-    store = Object.assign({ edits: {}, added: [], deleted: [], bios: {} }, j.data); saveStore(); rebuild(); route(); toast("Backup teruggezet");
-  } catch (err) { alert("Dit is geen geldige backup van Petra's boekenlijst."); }
+    store = Object.assign({ edits: {}, added: [], deleted: [], bios: {}, covers: {} }, j.data); saveStore(); rebuild(); route(); toast("Backup teruggezet");
+  } catch (err) { alert("Dit is geen geldige backup van Peet's boekenkast."); }
 });
 
 /* ---------- Start ---------- */

@@ -36,7 +36,7 @@ B("Maxim, John","De virusmafia","Bannerman's Ghosts","",0,"Thriller",0,"");
 B("McQueen, Holly","Isabelissimo","The Fabulously Fashionable Life of Isabel Bookbinder","",0,"Fictie",2009,"Isabel droomt van een carrière in de mode en een glamoureus leven, maar de werkelijkheid valt tegen. Een vrolijke chicklit.");
 B("Middelbeek, Mariëtte","Single en sexy","","",0,"Roman",0,"");
 B("Mosby, Steve","De 50/50 moorden","The 50/50 Killer","",0,"Thriller",2007,"Een moordenaar ontvoert stellen en zet ze tegen elkaar op: één van de twee mag blijven leven. Rechercheur Mark Nelson gaat de strijd aan.");
-B("Mustard, Stewart Fred","En altijd blijft de droom","Pomp and Circumstance","",0,"Roman",0,"");
+B("Stewart, Fred Mustard","En altijd blijft de droom","Pomp and Circumstance","",0,"Roman",0,"");
 B("Nathan, Melissa","Kus me, Kate","The Waitress","",0,"Roman",2004,"Serveerster Katie heeft haar dromen opgegeven, totdat een nieuwe ex-baas en een knappe dokter haar leven veranderen.");
 B("Newby, Eric","Mijn huis in Italië","A Small Place in Italy","",0,"Roman",1994,"Het autobiografische verhaal van Eric en Wanda Newby, die in 1967 een boerderij in Toscane kochten, en hun belevenissen met de dorpelingen.");
 B("Newman, Ruth","Vleugels van angst","Twisted Wing","",0,"Thriller",2009,"In Cambridge worden studentes vermoord. Een psycholoog helpt de politie, terwijl een getuige zichzelf niet meer vertrouwt.");
