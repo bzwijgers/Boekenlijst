@@ -386,7 +386,66 @@ document.addEventListener("paste", e => {                       // Ctrl+V op de 
 
 /* ---------- Langere teksten: Wikipedia (schrijver) en Open Library (boek), opgehaald op het apparaat zelf ---------- */
 const textCache = new Map();
-const translateLink = t => `<a href="https://translate.google.com/?sl=auto&tl=nl&op=translate&text=${encodeURIComponent(t.slice(0, 1800))}" target="_blank" rel="noopener">Vertaal naar Nederlands</a>`;
+/* Vertalen op de pagina zelf. Meerdere diensten achter elkaar: valt er één uit, dan neemt de volgende het over.
+   Elke vertaling wordt op het apparaat bewaard, zodat dezelfde tekst maar één keer vertaald hoeft te worden. */
+const NL_KEY = "pb-nl", TR_LABEL = "Vertaal naar Nederlands", trButton = `<button type="button" class="link tr">${TR_LABEL}</button>`;
+let nlCache = lsGet(NL_KEY, {});
+function tfetch(u) { const c = new AbortController(), t = setTimeout(() => c.abort(), 10000); return fetch(u, { signal: c.signal }).finally(() => clearTimeout(t)); }
+const unEntity = s => new DOMParser().parseFromString(s, "text/html").documentElement.textContent;
+const TRANSLATORS = [
+  async s => { const r = await tfetch("https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=nl&dt=t&q=" + encodeURIComponent(s)); if (!r.ok) throw new Error(r.status); return (await r.json())[0].map(x => x[0]).join(""); },
+  async s => { const r = await tfetch("https://lingva.ml/api/v1/auto/nl/" + encodeURIComponent(s)); if (!r.ok) throw new Error(r.status); const t = (await r.json()).translation; if (!t) throw new Error("leeg"); return t; },
+  async s => {
+    const r = await tfetch("https://api.mymemory.translated.net/get?mt=1&langpair=en%7Cnl&q=" + encodeURIComponent(s)); if (!r.ok) throw new Error(r.status);
+    const j = await r.json(), t = j.responseData && j.responseData.translatedText;
+    if (+j.responseStatus !== 200 || j.quotaFinished || !t || /MYMEMORY WARNING|QUERY LENGTH/i.test(t)) throw new Error("limiet");
+    return unEntity(t);
+  }
+];
+function chunkText(t, max) {                                     // in stukken op zinsgrens, want de diensten begrenzen de lengte
+  const out = []; let cur = "";
+  const add = s => { if (cur && (cur + s).length > max) { out.push(cur.trim()); cur = ""; } cur += s; };
+  for (const z of t.match(/[^.!?]+[.!?]*["')\]]*\s*/g) || [t]) { if (z.length <= max) add(z); else z.split(/(?<=\s)/).forEach(add); }
+  if (cur.trim()) out.push(cur.trim());
+  return out;
+}
+async function translateAll(parts, progress) {
+  const key = hash(parts.join("\n"));
+  if (nlCache[key]) return nlCache[key];
+  const chunks = parts.map(p => chunkText(p, 450)), total = chunks.reduce((n, c) => n + c.length, 0);
+  let done = 0, svc = 0; const result = [];
+  for (const list of chunks) {
+    const nl = [];
+    for (const c of list) {
+      for (;;) {
+        if (svc >= TRANSLATORS.length) throw new Error("geen dienst beschikbaar");
+        try { nl.push(await TRANSLATORS[svc](c)); break; } catch (e) { svc++; }
+      }
+      progress(++done, total);
+    }
+    result.push(nl.join(" "));
+  }
+  nlCache[key] = result;
+  if (!lsSet(NL_KEY, nlCache)) { nlCache = { [key]: result }; lsSet(NL_KEY, nlCache); }   // geheugen vol: oude vertalingen wissen
+  return result;
+}
+function wireTranslate(box) {
+  const btn = box.querySelector(".tr"); if (!btn) return;
+  const els = [...box.querySelectorAll(".wiki p, .wiki h4")], orig = els.map(e => e.textContent);
+  let nl = null, showing = false, busy = false;
+  btn.onclick = async () => {
+    if (busy) return;
+    if (showing) { els.forEach((e, i) => e.textContent = orig[i]); showing = false; btn.textContent = TR_LABEL; return; }
+    if (!nl) {
+      busy = true;
+      try { nl = await translateAll(orig, (d, n) => btn.textContent = `Vertalen… ${d} van ${n}`); }
+      catch (e) { toast("Vertalen lukt nu even niet. Probeer het later nog eens"); btn.textContent = TR_LABEL; return; }
+      finally { busy = false; }
+    }
+    els.forEach((e, i) => e.textContent = nl[i]); showing = true; btn.textContent = "Toon origineel";
+  };
+}
+const looksDutch = t => { const c = re => (t.match(re) || []).length; return c(/\b(het|een|zijn|naar|voor|haar|wordt)\b/gi) > c(/\b(the|and|was|with|for|her|his)\b/gi); };
 async function loadDesc(key, box, onNone) {
   try {
     let t = textCache.get(key);
@@ -401,7 +460,8 @@ async function loadDesc(key, box, onNone) {
     if (!box.isConnected) return;
     if (!t) { if (onNone) onNone(); else box.innerHTML = `<p class="none">Geen beschrijving gevonden.</p>`; return; }
     box.innerHTML = `<div class="wiki">${t.split(/\n\s*\n/).map(p => `<p>${esc(p)}</p>`).join("")}</div>
-      <p class="src">Bron: <a href="https://openlibrary.org/works/${key}" target="_blank" rel="noopener">Open Library</a> · ${translateLink(t)}</p>`;
+      <p class="src">Bron: <a href="https://openlibrary.org/works/${key}" target="_blank" rel="noopener">Open Library</a>${looksDutch(t) ? "" : " · " + trButton}</p>`;
+    wireTranslate(box);
   } catch (e) { if (box.isConnected) { if (onNone) onNone(); else box.innerHTML = `<p class="none">De beschrijving kon nu niet worden opgehaald. Probeer het later nog eens.</p><p class="src"><a href="https://openlibrary.org/works/${key}" target="_blank" rel="noopener">Bekijk op Open Library</a></p>`; } }
 }
 const WIKI_STOP = /^(bibliografie|bibliography|werken|works|boeken|books|novels|romans|thrillers|externe links?|external links|referenties|references|bronnen|bron|zie ook|see also|publicaties|publications|selected|filmografie|filmography|prijzen|awards|notes|voetnoten|verfilmingen|adaptations|nederlandse vertalingen)\b/i;
@@ -429,7 +489,8 @@ async function loadWiki(a, box) {
     if (lang === "nl" && total < bio(a).length * 1.3) { box.innerHTML = `<p class="src"><a href="${url}" target="_blank" rel="noopener">Meer op Wikipedia</a></p>`; return; }
     if (lang === "nl" && !own) $("#bioBox").innerHTML = "";
     box.innerHTML = `<div class="wiki">${paras.map(p => p.h ? `<h4>${esc(p.t)}</h4>` : `<p>${esc(p.t)}</p>`).join("")}</div>
-      <p class="src">Bron: <a href="${url}" target="_blank" rel="noopener">Wikipedia</a> (tekst onder CC BY-SA)${lang === "en" ? ` · <a href="https://translate.google.com/translate?sl=en&tl=nl&u=${encodeURIComponent(url)}" target="_blank" rel="noopener">Vertaal naar Nederlands</a>` : ""}</p>`;
+      <p class="src">Bron: <a href="${url}" target="_blank" rel="noopener">Wikipedia</a> (tekst onder CC BY-SA)${lang === "en" ? " · " + trButton : ""}</p>`;
+    wireTranslate(box);
   } catch (e) { /* geen verbinding: de korte bio blijft staan */ }
 }
 function setField(id, obj) {
@@ -591,7 +652,7 @@ $("#fDel").onclick = () => {
 
 /* ---------- Menu: backup, thema, omslagen ---------- */
 function toast(m) { const t = $("#toast"); t.textContent = m; t.classList.add("on"); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove("on"), 2200); }
-const APP = { versie: "1.3", datum: "8 november 2026" };   // bij elke update aanpassen
+const APP = { versie: "1.4", datum: "8 november 2026" };   // bij elke update aanpassen
 const SUN = '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
   MOON = '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>';
 const isDark = () => { const t = lsGet("pb-theme", "auto"); return t === "dark" || (t === "auto" && matchMedia("(prefers-color-scheme: dark)").matches); };
