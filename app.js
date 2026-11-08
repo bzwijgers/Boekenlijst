@@ -14,7 +14,7 @@ function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return 
 /* ---------- Gegevens ---------- */
 const STORE_KEY = "pb-data";
 let store = Object.assign({ edits: {}, added: [], deleted: [], bios: {}, covers: {} }, lsGet(STORE_KEY, {}));
-const saveStore = () => lsSet(STORE_KEY, store);
+const saveStore = () => { const ok = lsSet(STORE_KEY, store); if (ok) syncChanged(); return ok; };
 
 const BASE = [];
 (window.BOEKEN || []).forEach(b => BASE.push({ id: "b" + hash(b.a + "|" + b.t), a: b.a, t: b.t, o: b.o, s: b.s, n: b.n || 0, g: b.g, j: b.j || 0, z: b.z, memo: b.m || "", w: false }));
@@ -176,7 +176,24 @@ function hl(s, q) {
   while ((k = ns.indexOf(nq, i)) >= 0 && nq) { out += esc(s.slice(i, k)) + "<mark>" + esc(s.slice(k, k + nq.length)) + "</mark>"; i = k + nq.length; }
   return out + esc(s.slice(i));
 }
+/* Tabblad Binnenkort: aangekondigde boeken uit de maandelijkse controle */
+const todayISO = () => new Date().toISOString().slice(0, 10);
+const nlDate = iso => new Date(iso + "T12:00:00").toLocaleDateString("nl-NL", { day: "numeric", month: "long", year: "numeric" });
+const inKast = n => BOOKS.find(b => b.a === n.a && (tkey(b.t) === tkey(n.t) || tkey(b.o) === tkey(n.t)));
+const soonItems = () => (((window.NIEUW || {}).boeken) || []).filter(n => { const m = inKast(n); return !m || m.w; });
+function renderSoon() {
+  const nq = norm(query), today = todayISO(), items = soonItems().filter(n => !nq || norm(n.t).includes(nq) || norm(n.a).includes(nq) || norm(niceName(n.a)).includes(nq));
+  const chk = (window.NIEUW || {}).gecontroleerd;
+  $("#chips").innerHTML = ""; $("#az").innerHTML = ""; $("#allBtn").classList.add("hidden");
+  $("#cnt").textContent = items.length + (items.length === 1 ? " boek" : " boeken") + (chk ? " · gecontroleerd op " + nlDate(chk) : "");
+  $("#groups").innerHTML = items.length ? `<div class="au open"><ul>${items.map(n => {
+    const m = inKast(n), href = m ? "#/boek/" + m.id : "#/titel/" + encodeURIComponent(n.a + "|" + n.t);
+    return `<li><a href="${href}"><span class="th"><img loading="lazy" alt="" referrerpolicy="no-referrer" src="${esc(n.c)}" style="width:100%;height:100%;object-fit:cover;display:block"></span><span class="tt"><b>${hl(n.t, query)}</b><small>${hl(niceName(n.a), query)}</small><span class="ser">${n.d > today ? "Verschijnt " + nlDate(n.d) : "Net verschenen, " + nlDate(n.d)}</span></span>${m ? `<span class="ok w" style="flex:none;font:700 11px/1 var(--f-b);color:#fff;background:var(--gold);border-radius:10px;padding:5px 8px">Wens</span>` : ""}</a></li>`;
+  }).join("")}</ul></div>` : `<div class="empty">${query ? "Niets gevonden." : "Er zijn op dit moment geen nieuwe boeken aangekondigd."}<br><br>Elke maand wordt dit automatisch gecontroleerd.</div>`;
+  setAzTop();
+}
 function renderList() {
+  if (tab === "soon") { renderSoon(); return; }
   const pool = BOOKS.filter(b => tab === "wens" ? b.w : !b.w);
   const genres = [...new Set(pool.map(b => b.g).filter(Boolean))].sort((x, y) => x.localeCompare(y, "nl"));
   if (genre && !genres.includes(genre)) genre = "";
@@ -250,8 +267,12 @@ $("#allBtn").addEventListener("click", () => {
   names.forEach(a => all ? openSet.delete(a) : openSet.add(a)); lsSet("pb-open", [...openSet]); renderList();
 });
 $("#chips").addEventListener("click", e => { const c = e.target.closest(".chip"); if (!c) return; genre = c.dataset.g; renderList(); });
-$("#tGel").onclick = () => { tab = "gel"; $("#tGel").setAttribute("aria-pressed", true); $("#tWens").setAttribute("aria-pressed", false); renderList(); window.scrollTo(0, 0); };
-$("#tWens").onclick = () => { tab = "wens"; $("#tWens").setAttribute("aria-pressed", true); $("#tGel").setAttribute("aria-pressed", false); renderList(); window.scrollTo(0, 0); };
+const TABS = { gel: "#tGel", wens: "#tWens", soon: "#tSoon" };
+Object.entries(TABS).forEach(([k, sel]) => $(sel).onclick = () => {
+  tab = k; Object.entries(TABS).forEach(([x, s]) => $(s).setAttribute("aria-pressed", x === k));
+  renderList(); window.scrollTo(0, 0);
+});
+{ const n = soonItems().length; if (n) $("#tSoon").textContent = "Binnenkort (" + n + ")"; }
 let qT = 0;
 $("#q").addEventListener("input", e => { clearTimeout(qT); qT = setTimeout(() => { setQuery(e.target.value); renderList(); window.scrollTo(0, 0); }, 120); });
 $("#q").addEventListener("keydown", e => { if (e.key === "Enter") e.target.blur(); });
@@ -544,6 +565,10 @@ function authorTimeline(a) {
     else if (!rows.some(r => !r.b && tkey(r.title) === k)) rows.push({ title, y: year, c, wk });
   });
   mine.filter(b => !used.has(b.id)).forEach(b => rows.push({ b, y: b.j || 0 }));
+  (((window.NIEUW || {}).boeken) || []).filter(n => n.a === a && !inKast(n)).forEach(n => {     // aangekondigde boeken
+    const ex = rows.find(r => !r.b && tkey(r.title) === tkey(n.t));
+    if (ex) ex.soon = n.d; else rows.push({ title: n.t, y: +n.d.slice(0, 4), c: n.c, wk: "", soon: n.d });
+  });
   return rows.sort((x, y) => (x.y || 9999) - (y.y || 9999) || ((x.b && x.b.n) || 0) - ((y.b && y.b.n) || 0));
 }
 function renderAuthor(a) {
@@ -563,7 +588,7 @@ function renderAuthor(a) {
       ${nOther ? `<div class="legend"><span><i style="background:var(--acc2)"></i>Gelezen (${read})</span><span><i style="border:2px solid var(--faint)"></i>Nog niet gelezen (${nOther})</span>${bs.length > read ? `<span><i style="background:var(--gold)"></i>Wensenlijst</span>` : ""}</div>
       <div class="chips" style="padding-top:2px"><button class="chip" data-f="alle" aria-pressed="${authorFilter === "alle"}">Alle boeken</button><button class="chip" data-f="gel" aria-pressed="${authorFilter === "gel"}">Alleen gelezen</button></div>` : ""}
       <ul class="tl">${shown.map((r, i) => r.b ? `<li class="read"><a href="#/boek/${r.b.id}"><span class="y">${r.y || "?"}</span><span class="dot"></span><span class="th">${coverHTML(r.b)}</span><span class="tt"><b>${esc(r.b.t)}</b>${subHTML(r.b, "")}</span>${r.b.w ? `<span class="ok w">Wens</span>` : `<span class="ok">✓ Gelezen</span>`}</a></li>`
-        : `<li class="unread"><a href="#/titel/${encodeURIComponent(a + "|" + r.title)}"><span class="y">${r.y || "?"}</span><span class="dot"></span>${r.c ? `<span class="th"><img loading="lazy" alt="" referrerpolicy="no-referrer" src="${olCover(r.c, "S")}"></span>` : `<span class="ph2" data-find="${rows.indexOf(r)}">+</span>`}<span class="tt"><b>${esc(r.title)}</b></span></a></li>`).join("")}</ul>
+        : `<li class="unread"><a href="#/titel/${encodeURIComponent(a + "|" + r.title)}"><span class="y">${r.y || "?"}</span><span class="dot"></span>${r.c ? `<span class="th"><img loading="lazy" alt="" referrerpolicy="no-referrer" src="${olCover(r.c, "S")}"></span>` : `<span class="ph2" data-find="${rows.indexOf(r)}">+</span>`}<span class="tt"><b>${esc(r.title)}</b>${r.soon && r.soon > todayISO() ? `<small>Verschijnt ${nlDate(r.soon)}</small>` : ""}</span></a></li>`).join("")}</ul>
       ${hasBib ? `<p class="src">De niet-gelezen boeken komen uit openbare boekencatalogi. De lijst kan onvolledig zijn of verzamelbundels bevatten. Tik op een titel voor de samenvatting, of om hem als gelezen of als wens toe te voegen.</p>` : ""}</div>`;
   hydrate($("#sBody"));
   loadWiki(a, $("#wikiBox"));
@@ -594,7 +619,7 @@ function renderUnread(a, title) {
     <div class="top"><div class="big">${coverHTML(pseudo)}</div>
       <div><h1>${esc(r.title)}</h1>
       <a class="by" href="#/schrijver/${encodeURIComponent(a)}">${esc(niceName(a))}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></a></div></div>
-    <div class="facts"><div class="fact"><small>Verschenen</small><span>${r.y || "onbekend"}</span></div><div class="fact"><small>Status</small><span>Nog niet gelezen</span></div></div>
+    <div class="facts">${r.soon && r.soon > todayISO() ? `<div class="fact"><small>Verschijnt</small><span>${esc(nlDate(r.soon))}</span></div><div class="fact"><small>Status</small><span>Aangekondigd</span></div>` : `<div class="fact"><small>Verschenen</small><span>${r.y || "onbekend"}</span></div><div class="fact"><small>Status</small><span>Nog niet gelezen</span></div>`}</div>
     <div class="sec"><h3>Samenvatting</h3><div id="descBox"><p class="none">Samenvatting zoeken…</p></div></div>
     <div class="acts"><button class="btn pri" id="uGel">✓ Gelezen</button><button class="btn" id="uWens">♡ Op de wensenlijst</button></div>`;
   const el = $("#bBody .cov");
@@ -692,7 +717,7 @@ $("#fDel").onclick = () => {
 
 /* ---------- Menu: backup, thema, omslagen ---------- */
 function toast(m) { const t = $("#toast"); t.textContent = m; t.classList.add("on"); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove("on"), 2200); }
-const APP = { versie: "1.6", datum: "8 november 2026" };   // bij elke update aanpassen
+const APP = { versie: "1.7", datum: "8 november 2026" };   // bij elke update aanpassen
 const SUN = '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
   MOON = '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>';
 const isDark = () => { const t = lsGet("pb-theme", "auto"); return t === "dark" || (t === "auto" && matchMedia("(prefers-color-scheme: dark)").matches); };
@@ -726,13 +751,14 @@ $("#menuBtn").onclick = () => {
   const th = lsGet("pb-theme", "auto"), ic = p => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
   const s = document.createElement("div"); s.className = "sheet";
   s.innerHTML = `<div class="in"><div class="grab"></div>
+    <button class="it" data-k="sync"><span style="font-size:20px">🔄</span><span>Synchroniseren<small>${syncCfg ? esc(syncStatus()) : "Gelijk houden op telefoon, iPad en computer"}</small></span></button>
     <button class="it" data-k="xls">${ic('<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Z"/><path d="M14 3v6h6M9 13l4 5M13 13l-4 5"/>')}<span>Exporteren naar Excel<small>Alle gelezen boeken met schrijver, titels, serie, jaar en memo</small></span></button>
     <button class="it" data-k="xlsw">${ic('<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Z"/><path d="M14 3v6h6"/>')}<span>Exporteren naar Excel, met wensenlijst<small>Gelezen boeken én de wensenlijst in één bestand</small></span></button>
     <button class="it" data-k="exp">${ic('<path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v3h16v-3"/>')}<span>Backup opslaan<small>Bewaar memo's, nieuwe boeken en wijzigingen als bestand</small></span></button>
     <button class="it" data-k="imp">${ic('<path d="M12 15V3m0 0L8 7m4-4 4 4M4 17v3h16v-3"/>')}<span>Backup terugzetten<small>Bijvoorbeeld van de telefoon naar de iPad</small></span></button>
     <button class="it" data-k="theme">${ic('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>')}<span>Weergave automatisch${th === "auto" ? " (nu aan)" : ""}<small>Licht of donker volgens de instelling van het apparaat. Met de zon/maan-knop kies je het zelf.</small></span></button>
     <button class="it" data-k="cov">${ic('<path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/>')}<span>Omslagen opnieuw zoeken<small>Als er een verkeerde of geen voorkant wordt getoond</small></span></button>
-    <div class="about"><b>Peet's boekenkast</b><span>De boeken van Petra Zwijgers</span>
+    <div class="about"><b>Peet's boekenkast<svg class="lelie" aria-hidden="true"><use href="#lelie"/></svg></b><span>De boeken van Petra Zwijgers</span>
       <span>Versie ${APP.versie} · laatst bijgewerkt ${APP.datum}</span>
       <span>${BOOKS.filter(b => !b.w).length} gelezen boeken · ${new Set(BOOKS.filter(b => !b.w).map(b => b.a)).size} schrijvers · ${BOOKS.filter(b => b.w).length} op de wensenlijst</span>
       <span>Gemaakt met liefde door Barry Zwijgers ♥</span></div></div>`;
@@ -741,6 +767,7 @@ $("#menuBtn").onclick = () => {
     if (e.target === s || it) s.remove();
     if (!it) return;
     const k = it.dataset.k;
+    if (k === "sync") openSync();
     if (k === "xls" || k === "xlsw") exportExcel(k === "xlsw");
     if (k === "exp") exportData();
     if (k === "imp") $("#impFile").click();
@@ -766,7 +793,128 @@ $("#impFile").addEventListener("change", async e => {
   } catch (err) { alert("Dit is geen geldige backup van Peet's boekenkast."); }
 });
 
+/* ---------- Synchroniseren tussen apparaten ----------
+   Via een bestand in een privé-repository op GitHub, net als de concert-app. De koppelcode (eigenaar/repository/token)
+   wordt alleen op het apparaat zelf bewaard. Per onderdeel wint de laatste wijziging. */
+const SYNC_FILE = "peets-boekenkast.json", SYNC_KEY = "pb-sync", SYNC_STATE = "pb-sync-state";
+let syncCfg = lsGet(SYNC_KEY, null), syncState = Object.assign({ ts: {}, h: {} }, lsGet(SYNC_STATE, {})), syncBusy = false, syncTimer = 0;
+function flatStore(st) {
+  const m = {};
+  Object.entries(st.edits || {}).forEach(([k, v]) => m["e|" + k] = JSON.stringify(v));
+  (st.added || []).forEach(v => m["a|" + v.id] = JSON.stringify(v));
+  (st.deleted || []).forEach(id => m["d|" + id] = "1");
+  Object.entries(st.bios || {}).forEach(([k, v]) => m["b|" + k] = JSON.stringify(v));
+  Object.entries(st.covers || {}).forEach(([k, v]) => m["c|" + k] = v);
+  return m;
+}
+function unflatStore(m) {
+  const st = { edits: {}, added: [], deleted: [], bios: {}, covers: {} };
+  Object.entries(m).forEach(([key, v]) => {
+    const i = key.indexOf("|"), t = key.slice(0, i), k = key.slice(i + 1);
+    if (t === "e") st.edits[k] = JSON.parse(v); else if (t === "a") st.added.push(JSON.parse(v)); else if (t === "d") st.deleted.push(k);
+    else if (t === "b") st.bios[k] = JSON.parse(v); else if (t === "c") st.covers[k] = v;
+  });
+  return st;
+}
+function stampChanges() {                                     // onthoudt per onderdeel wanneer het voor het laatst veranderde
+  const m = flatStore(store), now = Date.now();
+  new Set([...Object.keys(m), ...Object.keys(syncState.h)]).forEach(k => {
+    const h = m[k] === undefined ? null : hash(m[k]);
+    if ((syncState.h[k] ?? null) !== h) { syncState.h[k] = h; syncState.ts[k] = now; }
+  });
+  lsSet(SYNC_STATE, syncState);
+}
+function syncChanged() { stampChanges(); if (syncCfg) { clearTimeout(syncTimer); syncTimer = setTimeout(() => syncNow(false), 4000); } }
+function mergeDoc(doc) {
+  stampChanges();
+  const mine = flatStore(store), items = doc.items || {}, rts = doc.ts || {}, out = {}, ts = {};
+  let localChanged = false, remoteChanged = false;
+  new Set([...Object.keys(mine), ...Object.keys(items), ...Object.keys(rts), ...Object.keys(syncState.ts)]).forEach(k => {
+    const tl = syncState.ts[k] || 0, tr = rts[k] || 0, remote = tr > tl, v = remote ? items[k] : mine[k];
+    ts[k] = Math.max(tl, tr);
+    if (v !== undefined) out[k] = v;
+    if (remote && items[k] !== mine[k]) localChanged = true;
+    if (tl > tr || (!remote && items[k] !== mine[k])) remoteChanged = true;
+  });
+  syncState.ts = ts;
+  if (localChanged) {
+    store = unflatStore(out); lsSet(STORE_KEY, store); rebuild();
+    syncState.h = {}; Object.entries(out).forEach(([k, v]) => syncState.h[k] = hash(v));
+    Object.keys(ts).forEach(k => { if (out[k] === undefined) syncState.h[k] = null; });
+  }
+  lsSet(SYNC_STATE, syncState);
+  return { localChanged, remoteChanged, out };
+}
+const utf8ToB64 = s => { const b = new TextEncoder().encode(s); let r = ""; for (let i = 0; i < b.length; i += 8192) r += String.fromCharCode.apply(null, b.subarray(i, i + 8192)); return btoa(r); };
+const b64ToUtf8 = s => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\s/g, "")), c => c.charCodeAt(0)));
+function ghFetch(cfg, path, opt) {
+  return fetch("https://api.github.com/repos/" + encodeURIComponent(cfg.owner) + "/" + encodeURIComponent(cfg.repo) + path, Object.assign({ cache: "no-store" }, opt, { headers: Object.assign({ Authorization: "Bearer " + cfg.token, Accept: "application/vnd.github+json" }, (opt || {}).headers) }));
+}
+async function syncNow(manual) {
+  if (!syncCfg || syncBusy) return;
+  syncBusy = true; const cfg = syncCfg;
+  const finish = err => { syncBusy = false; syncCfg = cfg; if (err) cfg.err = err; else { delete cfg.err; cfg.last = new Date().toISOString(); } lsSet(SYNC_KEY, cfg); if (manual) toast(err || "Gesynchroniseerd"); const st = $("#syncSt"); if (st) st.textContent = syncStatus(); };
+  try {
+    for (let poging = 0; poging < 2; poging++) {
+      const r = await ghFetch(cfg, "/contents/" + SYNC_FILE);
+      if (r.status === 401 || r.status === 403) return finish("Geen toegang: controleer de koppelcode");
+      if (!r.ok && r.status !== 404) return finish("Synchroniseren lukt nu niet (" + r.status + ")");
+      let doc = { items: {}, ts: {} }, sha;
+      if (r.ok) {
+        const j = await r.json(); sha = j.sha;
+        const text = j.content ? b64ToUtf8(j.content) : await (await ghFetch(cfg, "/contents/" + SYNC_FILE, { headers: { Accept: "application/vnd.github.raw+json" } })).text();
+        doc = JSON.parse(text);
+      }
+      const { localChanged, remoteChanged, out } = mergeDoc(doc);
+      if (localChanged) { const a = document.activeElement; if (!(a && /INPUT|TEXTAREA/.test(a.tagName)) && !document.querySelector(".sheet")) route(); }
+      if (!remoteChanged) return finish();
+      const put = await ghFetch(cfg, "/contents/" + SYNC_FILE, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(Object.assign({ message: "Boekenkast bijgewerkt", content: utf8ToB64(JSON.stringify({ v: 1, items: out, ts: syncState.ts })) }, sha ? { sha } : {})) });
+      if (put.ok) return finish();
+      if (put.status !== 409 && put.status !== 422) return finish("Opslaan lukt nu niet (" + put.status + ")");
+    }
+    finish("Synchroniseren lukt nu niet, probeer het zo nog eens");
+  } catch (e) { finish("Geen verbinding met GitHub"); }
+}
+function syncStatus() { if (!syncCfg) return ""; if (syncCfg.err) return "Laatste poging mislukt: " + syncCfg.err; return syncCfg.last ? "Laatst bijgewerkt: " + new Date(syncCfg.last).toLocaleString("nl-NL", { dateStyle: "medium", timeStyle: "short" }) : "Nog niet gesynchroniseerd"; }
+function openSync() {
+  const s = document.createElement("div"); s.className = "sheet";
+  const body = syncCfg
+    ? `<p style="margin:0 6px 4px">Gekoppeld met <b>${esc(syncCfg.owner)}/${esc(syncCfg.repo)}</b></p><p class="src" id="syncSt" style="margin:0 6px 12px">${esc(syncStatus())}</p>
+       <div class="acts" style="margin:8px 6px"><button class="btn pri" data-s="now">Nu synchroniseren</button></div>
+       <button class="it" data-s="copy"><span style="font-size:20px">🔗</span><span>Koppelcode kopiëren<small>Plak die op je andere apparaat. Deel de code met niemand anders.</small></span></button>
+       <button class="it" data-s="off"><span style="font-size:20px">×</span><span>Ontkoppelen<small>Je gegevens op dit apparaat blijven gewoon staan</small></span></button>`
+    : `<p style="margin:0 6px 10px;color:var(--muted);font-size:14px">Houd memo's, nieuwe boeken, wijzigingen en eigen omslagen gelijk op telefoon, iPad en computer. Dit werkt met een <b>privé</b>-repository op GitHub, net als je concert-app.</p>
+       <div class="fld" style="margin:0 6px 8px"><label for="syncCode">Koppelcode: eigenaar/repository/token</label><input id="syncCode" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="eigenaar/repository/github_pat_…"></div>
+       <p class="src" id="syncSt" style="margin:0 6px 8px"></p>
+       <div class="acts" style="margin:8px 6px"><button class="btn pri" data-s="link">Koppelen</button></div>`;
+  s.innerHTML = `<div class="in"><div class="grab"></div><p style="margin:4px 6px 10px;font:600 19px var(--f-d)">Synchroniseren</p>${body}<button class="it" data-s="x"><span style="font-size:20px">←</span><span>Sluiten</span></button></div>`;
+  s.addEventListener("click", async e => {
+    if (e.target === s) { s.remove(); return; }
+    const k = (e.target.closest("[data-s]") || { dataset: {} }).dataset.s; if (!k) return;
+    if (k === "x") s.remove();
+    if (k === "now") syncNow(true);
+    if (k === "copy") { try { await navigator.clipboard.writeText(`${syncCfg.owner}/${syncCfg.repo}/${syncCfg.token}`); toast("Koppelcode gekopieerd"); } catch (err) { toast("Kopiëren lukt hier niet"); } }
+    if (k === "off" && confirm("Dit apparaat ontkoppelen?")) { syncCfg = null; localStorage.removeItem(SYNC_KEY); s.remove(); toast("Ontkoppeld"); }
+    if (k === "link") {
+      const p = $("#syncCode").value.trim().split("/"), st = $("#syncSt");
+      if (p.length !== 3 || !p[0] || !p[1] || !p[2]) { st.textContent = "Vul de code in als eigenaar/repository/token"; return; }
+      const cfg = { owner: p[0], repo: p[1], token: p[2] };
+      st.textContent = "Bezig met controleren…";
+      try {
+        const r = await ghFetch(cfg, "");
+        if (!r.ok) { st.textContent = r.status === 404 || r.status === 401 ? "Repository niet gevonden of token klopt niet" : "GitHub gaf fout " + r.status; return; }
+        const j = await r.json();
+        if (!j.private) { st.textContent = "Deze repository is openbaar. Kies een privé-repository, anders kan iedereen je memo's en de code lezen."; return; }
+        syncCfg = cfg; lsSet(SYNC_KEY, cfg); s.remove(); toast("Gekoppeld"); syncNow(true);
+      } catch (err) { st.textContent = "Geen verbinding met GitHub"; }
+    }
+  });
+  document.body.appendChild(s);
+}
+
 /* ---------- Start ---------- */
 route();
+if (syncCfg) setTimeout(() => syncNow(false), 1500);
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && syncCfg) syncNow(false); });
 let rsT = 0; addEventListener("resize", () => { clearTimeout(rsT); rsT = setTimeout(() => { if (current === "start") renderStart(); }, 300); });
 if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(() => { });

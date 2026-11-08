@@ -47,6 +47,10 @@ a{color:inherit}
 .hand{display:block;font:700 clamp(40px,11vw,64px)/.8 "Caveat",cursive;color:var(--acc);transform:rotate(-4deg) translateX(-18%);margin-bottom:-.12em;position:relative;z-index:1}
 .big{display:block;font:800 clamp(46px,14vw,92px)/.92 var(--f-d);letter-spacing:-.035em;font-variation-settings:"SOFT" 100,"WONK" 1}
 .big em{font-style:italic;font-weight:400;color:var(--acc)}
+.lelie{display:inline-block;fill:currentColor;color:var(--acc);overflow:visible}
+.big .lelie{width:.46em;height:.56em;margin-left:.1em;vertical-align:.06em}
+.bar h2 .lelie{width:.8em;height:.98em;margin-left:.25em;vertical-align:-.12em}
+.about .lelie{width:15px;height:18px;margin-left:6px;vertical-align:-3px}
 .big::after{content:"";display:block;height:.09em;width:62%;margin:.12em auto 0;border-radius:1em;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.8}
 .hero p.sub{color:var(--muted);margin:.5em 0 22px;font:italic 400 17px var(--f-d)}
 .stats{display:flex;justify-content:center;gap:22px;margin:0 0 22px}
@@ -221,6 +225,19 @@ form.ed{padding:18px 0}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <g id="lelie-helft">
+    <path d="M45.5 69C45 54 38 37 24 36 12 35.500 3 44 3 56c0 9 6 16 14 16 7 0 12-5 12-11 0-5-4-8-8-7 2-5 9-6 13-1 5 6 7 14 7 22v-6z"/>
+    <path d="M44 81c-1 8-6 15-13 15-6 0-10-4-9-9 1-4 6-6 8-2 3-1 4-2 5-4h9z"/>
+  </g>
+  <symbol id="lelie" viewBox="0 0 100 122">
+    <path d="M50 1c-3 12-18 22-18 38 0 13 11 19 15.500 30h5C57 58 68 52 68 39 68 23 53 13 50 1Z"/>
+    <rect x="28" y="70" width="44" height="10.500" rx="5.200"/>
+    <path d="M46.500 81c0 14-5 21-8 26 5 1 9 6 11.500 14 2.500-8 6.500-13 11.500-14-3-5-8-12-8-26z"/>
+    <use href="#lelie-helft"/>
+    <use href="#lelie-helft" transform="matrix(-1 0 0 1 100 0)"/>
+  </symbol>
+</defs></svg>
 
 <!-- Startscherm -->
 <section id="start" class="view">
@@ -234,7 +251,7 @@ form.ed{padding:18px 0}
       <text><textPath href="#arc" startOffset="2%">Ex libris · Peet · Ex libris · Peet ·</textPath></text>
       <path d="M36 62V38c5-3 10-3 14 1 4-4 9-4 14-1v24c-5-3-10-3-14 1-4-4-9-4-14-1Zm14-23v24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
     </svg>
-    <h1><span class="hand">Peet's</span><span class="big">Boeken<em>kast</em></span></h1>
+    <h1><span class="hand">Peet's</span><span class="big">Boeken<em>kast</em><svg class="lelie" aria-hidden="true"><use href="#lelie"/></svg></span></h1>
     <p class="sub" id="tagline">Gelezen, genoten en bewaard.</p>
     <div class="stats"><div><b id="nB">0</b><span>boeken</span></div><div><b id="nA">0</b><span>schrijvers</span></div><div><b id="nW">0</b><span>op de wensenlijst</span></div></div>
     <div class="btns" style="justify-content:center">
@@ -249,17 +266,17 @@ form.ed{padding:18px 0}
   <div class="bar"><div class="wrap">
     <div class="row">
       <a class="ib" href="#/" aria-label="Naar het startscherm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg></a>
-      <h2><span class="h">Peet's</span> Boeken<em>kast</em></h2>
+      <h2><span class="h">Peet's</span> Boeken<em>kast</em><svg class="lelie" aria-hidden="true"><use href="#lelie"/></svg></h2>
       <button class="ib" id="themeBtn" aria-label="Licht of donker"></button>
-      <button class="ib" id="menuBtn" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
       <a class="ib pri" href="#/nieuw" aria-label="Boek toevoegen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></a>
+      <button class="ib" id="menuBtn" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
     </div>
     <form class="search" role="search" onsubmit="return false">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
       <input id="q" type="search" placeholder="Zoek op schrijver of titel" autocomplete="off" enterkeyhint="search" aria-label="Zoek op schrijver of titel">
       <button type="button" class="x hidden" id="qx" aria-label="Wis zoekopdracht">×</button>
     </form>
-    <div class="seg" role="group"><button id="tGel" aria-pressed="true">Gelezen</button><button id="tWens" aria-pressed="false">Wensenlijst</button></div>
+    <div class="seg" role="group"><button id="tGel" aria-pressed="true">Gelezen</button><button id="tWens" aria-pressed="false">Wensenlijst</button><button id="tSoon" aria-pressed="false">Binnenkort</button></div>
     <div class="chips" id="chips"></div>
     <div class="tools"><span id="cnt"></span><button class="link" id="allBtn">Alles openklappen</button></div>
   </div></div>
@@ -330,6 +347,7 @@ form.ed{padding:18px 0}
 <script src="data-schrijvers.js"></script>
 <script src="data-wensen.js"></script>
 <script src="data-extra.js"></script>
+<script src="data-nieuw.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

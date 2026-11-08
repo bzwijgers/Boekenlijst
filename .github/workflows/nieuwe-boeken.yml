@@ -1,0 +1,28 @@
+name: nieuwe-boeken
+on:
+  schedule:
+    - cron: "23 5 1 * *"   # elke 1e van de maand
+  workflow_dispatch:
+  push:
+    paths: ["tools/nieuwe-boeken.mjs", ".github/workflows/nieuwe-boeken.yml"]
+permissions:
+  contents: write
+concurrency:
+  group: nieuwe-boeken
+  cancel-in-progress: false
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+      - name: Zoek aangekondigde boeken
+        run: node tools/nieuwe-boeken.mjs
+      - name: Bewaar het resultaat
+        run: |
+          git config user.name "boekenkast-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data-nieuw.js
+          git diff --cached --quiet || git commit -m "Maandelijkse controle op nieuwe boeken"
+          git pull --rebase origin main
+          git push
